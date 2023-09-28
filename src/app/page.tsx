@@ -1,18 +1,15 @@
 "use client"
 
 import * as React from 'react';
-import { Box, CssBaseline, Grid, Paper, ThemeProvider, Toolbar, createTheme, styled } from '@mui/material';
+import { Box, CssBaseline, Grid, Paper, Toolbar } from '@mui/material';
 import MuiAppBar from '@mui/material/AppBar';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Deposits from './Deposits';
 import Orders from './Orders';
 
-const defaultTheme = createTheme();
-
 export default function Home() {
   return (
-    <ThemeProvider theme={defaultTheme}>
       <Box sx={{ display: 'flex' }}>
         <CssBaseline />
         <MuiAppBar position="absolute">
@@ -56,7 +53,7 @@ export default function Home() {
                     p: 2,
                     display: 'flex',
                     flexDirection: 'column',
-                    height: 600,
+                    height: 500,
                   }}
                 >
                   もともと、チャートがあったとこ。
@@ -69,7 +66,7 @@ export default function Home() {
                     p: 2,
                     display: 'flex',
                     flexDirection: 'column',
-                    height: 600,
+                    height: 500,
                   }}
                 >
                   <Deposits />
@@ -85,6 +82,5 @@ export default function Home() {
           </Container>
         </Box>
       </Box>
-    </ThemeProvider>
   );
 }
