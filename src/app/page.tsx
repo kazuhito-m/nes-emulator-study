@@ -10,7 +10,6 @@ import Deposits from './Deposits';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
-import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 
 export default function Home() {
@@ -38,10 +37,7 @@ export default function Home() {
       <Box
         component="main"
         sx={{
-          backgroundColor: (theme) =>
-            theme.palette.mode === 'light'
-              ? theme.palette.grey[100]
-              : theme.palette.grey[900],
+          backgroundColor: (theme) => theme.palette.grey[300],
           flexGrow: 1,
           height: '100vh',
           overflow: 'auto',
