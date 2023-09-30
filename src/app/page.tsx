@@ -6,7 +6,12 @@ import MuiAppBar from '@mui/material/AppBar';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Deposits from './Deposits';
-import Orders from './Orders';
+
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
 
 export default function Home() {
   return (
@@ -75,7 +80,25 @@ export default function Home() {
             {/* Recent Orders */}
             <Grid item xs={12}>
               <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                <Orders />
+
+                Status Pameters
+                <Table size="small">
+                  <TableBody>
+                    <TableRow >
+                      <TableCell>paramA</TableCell>
+                      <TableCell>x</TableCell>
+                      <TableCell>paramB</TableCell>
+                      <TableCell>y</TableCell>
+                    </TableRow>
+                    <TableRow >
+                      <TableCell>paramC</TableCell>
+                      <TableCell>z</TableCell>
+                      <TableCell>paramD</TableCell>
+                      <TableCell>999</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+
               </Paper>
             </Grid>
           </Grid>
