@@ -57,7 +57,7 @@ export default function Home() {
                   height: 500,
                 }}
               >
-                もともと、チャートがあったとこ。
+                Game Monitor
               </Paper>
             </Grid>
             {/* Recent Deposits */}
