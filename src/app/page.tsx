@@ -1,11 +1,10 @@
 "use client"
 
 import * as React from 'react';
-import { Box, CssBaseline, Grid, Paper, Toolbar } from '@mui/material';
+import { Box, CssBaseline, Grid, Link, Paper, Toolbar } from '@mui/material';
 import MuiAppBar from '@mui/material/AppBar';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import Deposits from './Deposits';
 
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -47,7 +46,7 @@ export default function Home() {
 
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
           <Grid container spacing={3}>
-            {/* Chart */}
+
             <Grid item xs={12} md={8} lg={8}>
               <Paper
                 sx={{
@@ -60,7 +59,7 @@ export default function Home() {
                 Game Monitor
               </Paper>
             </Grid>
-            {/* Recent Deposits */}
+
             <Grid item xs={12} md={4} lg={4}>
               <Paper
                 sx={{
@@ -70,13 +69,23 @@ export default function Home() {
                   height: 500,
                 }}
               >
-                <Deposits />
+                Recent Deposits
+                <Typography component="p" variant="h4">
+                  $3,024.00
+                </Typography>
+                <Typography color="text.secondary" sx={{ flex: 1 }}>
+                  on 15 March, 2019
+                </Typography>
+                <div>
+                  <Link color="primary" href="#">
+                    View balance
+                  </Link>
+                </div>
               </Paper>
             </Grid>
-            {/* Recent Orders */}
+
             <Grid item xs={12}>
               <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-
                 Status Pameters
                 <Table size="small">
                   <TableBody>
@@ -94,9 +103,9 @@ export default function Home() {
                     </TableRow>
                   </TableBody>
                 </Table>
-
               </Paper>
             </Grid>
+
           </Grid>
         </Container>
       </Box>
