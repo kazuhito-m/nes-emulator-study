@@ -1,10 +1,11 @@
 "use client"
 
 import * as React from 'react';
-import { Box, CssBaseline, Grid, Link, Paper, Toolbar } from '@mui/material';
+import { Box, CssBaseline, Grid, Paper, TableHead, Toolbar } from '@mui/material';
 import MuiAppBar from '@mui/material/AppBar';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
+import { KeyboardOne } from '@/presentation/input/keybord-one';
 
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -12,6 +13,9 @@ import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 
 export default function Home() {
+  const padOne = new KeyboardOne();
+  if (typeof window !== 'undefined') padOne.registerKeyEvents(window);
+
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
