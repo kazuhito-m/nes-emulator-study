@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from 'react';
+import { useState } from 'react';
 import { Box, CssBaseline, Grid, Paper, TableHead, Toolbar } from '@mui/material';
 import MuiAppBar from '@mui/material/AppBar';
 import Typography from '@mui/material/Typography';
@@ -14,6 +15,7 @@ import TableRow from '@mui/material/TableRow';
 
 export default function Home() {
   const padOne = new KeyboardOne();
+  const [padOneStates, padOneStatesSet] = useState(padOne.duplicateStateOnly());
   if (typeof window !== 'undefined') padOne.registerKeyEvents(window);
 
   return (
@@ -81,6 +83,23 @@ export default function Home() {
             <Grid item xs={12}>
               <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
                 Status Pameters
+
+                <Table size="small">
+                  <TableBody>
+                    <TableRow >
+                      <TableCell>Input Status:</TableCell>
+                      <TableCell>{padOneStates.up ? '↑' : ' '}</TableCell>
+                      <TableCell>↓</TableCell>
+                      <TableCell>←</TableCell>
+                      <TableCell>→</TableCell>
+                      <TableCell>B</TableCell>
+                      <TableCell>A</TableCell>
+                      <TableCell>SELECT</TableCell>
+                      <TableCell>START</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+
                 <Table size="small">
                   <TableBody>
                     <TableRow >

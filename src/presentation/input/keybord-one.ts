@@ -59,4 +59,17 @@ export class KeyboardOne implements PadInput {
         for (const name in o) if (typeof o[name] === 'boolean') o[name] = false;
         console.log(JSON.stringify(this));
     }
+
+    public duplicateStateOnly(): PadInput {
+        return {
+            up: this.up,
+            down: this.down,
+            left: this.left,
+            right: this.right,
+            a: this.a,
+            b: this.b,
+            select: this.select,
+            start: this.start
+        }
+    }
 }
