@@ -62,47 +62,47 @@ export default function Home() {
               >
                 <div>Game Monitor</div>
                 <canvas width="512" height="480"></canvas>
-            </Paper>
-          </Grid>
+              </Paper>
+            </Grid>
 
-          <Grid item xs={12} md={4} lg={4}>
-            <Paper
-              sx={{
-                p: 2,
-                display: 'flex',
-                flexDirection: 'column',
-                height: 550,
-              }}
-            >
-              Controll Panel
-            </Paper>
-          </Grid>
+            <Grid item xs={12} md={4} lg={4}>
+              <Paper
+                sx={{
+                  p: 2,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  height: 550,
+                }}
+              >
+                Controll Panel
+              </Paper>
+            </Grid>
 
-          <Grid item xs={12}>
-            <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-              Status Pameters
-              <Table size="small">
-                <TableBody>
-                  <TableRow >
-                    <TableCell>paramA</TableCell>
-                    <TableCell>x</TableCell>
-                    <TableCell>paramB</TableCell>
-                    <TableCell>y</TableCell>
-                  </TableRow>
-                  <TableRow >
-                    <TableCell>paramC</TableCell>
-                    <TableCell>z</TableCell>
-                    <TableCell>paramD</TableCell>
-                    <TableCell>999</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </Paper>
-          </Grid>
+            <Grid item xs={12}>
+              <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+                Status Pameters
+                <Table size="small">
+                  <TableBody>
+                    <TableRow >
+                      <TableCell>paramA</TableCell>
+                      <TableCell>x</TableCell>
+                      <TableCell>paramB</TableCell>
+                      <TableCell>y</TableCell>
+                    </TableRow>
+                    <TableRow >
+                      <TableCell>paramC</TableCell>
+                      <TableCell>z</TableCell>
+                      <TableCell>paramD</TableCell>
+                      <TableCell>999</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </Paper>
+            </Grid>
 
-        </Grid>
-      </Container>
-    </Box>
+          </Grid>
+        </Container>
+      </Box>
     </Box >
   );
 }
