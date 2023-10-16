@@ -16,7 +16,7 @@ import TableRow from '@mui/material/TableRow';
 export default function Home() {
   const padOne = new KeyboardOne();
   const [padOneStates, padOneStatesSet] = useState(padOne.duplicateStateOnly());
-  if (typeof window !== 'undefined') padOne.registerKeyEvents(window);
+  if (typeof window !== 'undefined') padOne.registerKeyEvents(window, padOneStatesSet);
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -89,13 +89,13 @@ export default function Home() {
                     <TableRow >
                       <TableCell>Input Status:</TableCell>
                       <TableCell>{padOneStates.up ? '↑' : ' '}</TableCell>
-                      <TableCell>↓</TableCell>
-                      <TableCell>←</TableCell>
-                      <TableCell>→</TableCell>
-                      <TableCell>B</TableCell>
-                      <TableCell>A</TableCell>
-                      <TableCell>SELECT</TableCell>
-                      <TableCell>START</TableCell>
+                      <TableCell>{padOneStates.down ? '↓' : ' '}</TableCell>
+                      <TableCell>{padOneStates.left ? '←' : ' '}</TableCell>
+                      <TableCell>{padOneStates.right ? '→' : ' '}</TableCell>
+                      <TableCell>{padOneStates.b ? 'B' : ' '}</TableCell>
+                      <TableCell>{padOneStates.a ? 'A' : ' '}</TableCell>
+                      <TableCell>{padOneStates.select ? 'SELECT' : ' '}</TableCell>
+                      <TableCell>{padOneStates.start ? 'START' : ' '}</TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
