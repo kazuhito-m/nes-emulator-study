@@ -16,7 +16,8 @@ import TableRow from '@mui/material/TableRow';
 export default function Home() {
   const padOne = new KeyboardOne();
   const [padOneStates, padOneStatesSet] = useState(padOne.duplicateStateOnly());
-  if (typeof window !== 'undefined') padOne.registerKeyEvents(window, padOneStatesSet);
+  if (typeof window !== 'undefined') padOne.registerKeyEvents(window);
+  setInterval(() => padOneStatesSet(padOne.duplicateStateOnly()), 1000);
 
   return (
     <Box sx={{ display: 'flex' }}>

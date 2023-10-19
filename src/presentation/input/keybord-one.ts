@@ -1,4 +1,3 @@
-import { Dispatch, SetStateAction } from "react";
 import { PadInput } from "./pad-input";
 
 export class KeyboardOne implements PadInput {
@@ -13,15 +12,21 @@ export class KeyboardOne implements PadInput {
         public start: boolean = false
     ) { }
 
-    public registerKeyEvents(window: Window, changeFunc: Dispatch<SetStateAction<PadInput>>) {
+    private lastKey = '';
+    private lastState = false;
+
+    public registerKeyEvents(window: Window) {
         const document = window.document;
-        document.onkeydown = (e) =>  this.changeKeyState(e.key, true, changeFunc);
-        document.onkeyup = (e) => this.changeKeyState(e.key, false, changeFunc);
-        window.onblur = () => this.clearStates(changeFunc);
-        window.onfocus = () => this.clearStates(changeFunc);
+        document.onkeydown = (e) => this.changeKeyState(e.key, true);
+        document.onkeyup = (e) => this.changeKeyState(e.key, false);
+        window.onblur = () => this.clearStates();
+        window.onfocus = () => this.clearStates();
     }
 
-    private async changeKeyState(key: string, state: boolean, changeFunc: Dispatch<SetStateAction<PadInput>>): void {
+    private changeKeyState(key: string, state: boolean): void {
+        if (this.lastKey === key && this.lastState === state) return;
+        this.lastKey = key; this.lastState = state;
+
         console.log('key:"' + key + '", state:' + state);
         switch (key.toLowerCase()) {
             case 'arrowup':
@@ -52,15 +57,13 @@ export class KeyboardOne implements PadInput {
                 break;
         }
         console.log(JSON.stringify(this));
-        changeFunc(this.duplicateStateOnly());
     }
 
-    private clearStates(changeFunc: Dispatch<SetStateAction<PadInput>>): void {
+    private clearStates(): void {
         console.log('clear input.');
         const o: any = this;
         for (const name in o) if (typeof o[name] === 'boolean') o[name] = false;
         console.log(JSON.stringify(this));
-        changeFunc(this.duplicateStateOnly());
     }
 
     public duplicateStateOnly(): PadInput {
