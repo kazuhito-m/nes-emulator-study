@@ -1,16 +1,75 @@
 "use client"
 
 import * as React from 'react';
-import { Box, Button } from '@mui/material';
-
-const onClickExecute = () => {
-  console.log('実行押された！');
-}
+import { Box, Button, Slider, Stack, Typography } from '@mui/material';
+import { VolumeDown, VolumeUp } from '@mui/icons-material';
+import { useState } from 'react';
 
 export default function Page() {
+  let audioCtx: AudioContext;
+  if (typeof window !== 'undefined') {
+    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new AudioContext();
+  }
+
+  let play = false;
+  let oscillator: OscillatorNode;
+  let gainCtx: GainNode;
+  let freq = 440;
+
+  const [volume, setVolume] = useState<number>(30);
+  const [gain, setGain] = useState<number>(0.3);
+
+  const playOsc = (command: OscillatorType = 'sine'): void => {
+    console.log(command);
+    console.log('gain:' + gain);
+    if (!play) {
+      oscillator = audioCtx.createOscillator();
+      gainCtx = audioCtx.createGain();
+      oscillator.connect(gainCtx);
+      gainCtx.connect(audioCtx.destination);
+      oscillator.frequency.value = freq;
+      gainCtx.gain.value = gain;
+      console.log(gainCtx);
+      oscillator.start();
+      play = true;
+    }
+    oscillator.type = command;
+  };
+
+  const stopOsc = (): void => {
+    if (!play) return;
+    oscillator.stop();
+    play = false;
+  };
+
+  const onChangeVolume = (event: Event, newValue: number | number[]) => {
+    const newValume = newValue as number;
+    setVolume(newValume);
+    console.log('volume:' + newValue);
+    setGain(newValume / 100);
+    console.log('gain:' + gain);
+    if (typeof gainCtx !== 'undefined') {
+      gainCtx.gain.value = gain;
+    }
+    stopOsc();
+  };
+
   return (
     <Box>
-      <Button onClick={onClickExecute}>実行</Button>
+      <Button onClick={(e) => playOsc('sine')}>Sin</Button>
+      <Button onClick={(e) => playOsc('triangle')}>Triangle</Button>
+      <Button onClick={(e) => playOsc('square')}>Square</Button>
+      <Button onClick={(e) => playOsc('sawtooth')}>Sawtooth</Button>
+      <Button onClick={(e) => stopOsc()}>Stop</Button>
+
+      <Typography fontWeight={700}>{play ? 'Plaing!' : ''}</Typography>
+
+      <Stack spacing={2} direction="row" sx={{ mb: 1 }} alignItems="center">
+        <VolumeDown />
+        <Slider aria-label="Default" valueLabelDisplay="auto" value={volume} onChange={onChangeVolume} />
+        <VolumeUp />
+      </Stack>
     </Box >
   );
 }
