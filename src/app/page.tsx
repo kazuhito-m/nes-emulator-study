@@ -14,10 +14,84 @@ import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 
 export default function Home() {
+  // TODO キーボード周りの入力系は、今かなりやっつけなので、整理・分離したい。
   const padOne = new KeyboardOne();
-  const [padOneStates, padOneStatesSet] = useState(padOne.duplicateStateOnly());
-  if (typeof window !== 'undefined') padOne.registerKeyEvents(window);
-  setInterval(() => padOneStatesSet(padOne.duplicateStateOnly()), 1000);
+  let [padUp, padUpSet] = useState(false);
+  let [padDown, padDownSet] = useState(false);
+  let [padLeft, padLeftSet] = useState(false);
+  let [padRight, padRightSet] = useState(false);
+  let [padA, padASet] = useState(false);
+  let [padB, padBSet] = useState(false);
+  let [padSelect, padSelectSet] = useState(false);
+  let [padStart, padStartSet] = useState(false);
+  if (typeof window !== 'undefined') {
+    const changeKeyState = (key: string, state: boolean): void => {
+      switch (key.toLowerCase()) {
+        case 'arrowup':
+          if (padUp === state) return;
+          padUp = state;
+          padUpSet(padUp);
+          padOne.up = padUp;
+          break;
+        case 'arrowdown':
+          if (padDown === state) return;
+          padDown = state;
+          padDownSet(padDown);
+          padOne.down = padDown;
+          break;
+        case 'arrowleft':
+          if (padLeft === state) return;
+          padLeft = state;
+          padLeftSet(padLeft);
+          padOne.left = padLeft;
+          break;
+        case 'arrowright':
+          if (padRight === state) return;
+          padRight = state;
+          padRightSet(padRight);
+          padOne.right = padRight;
+          break;
+        case 'a':
+          if (padA === state) return;
+          padA = state;
+          padASet(padA);
+          padOne.a = padA;
+          break;
+        case 'b':
+          if (padB === state) return;
+          padB = state;
+          padBSet(padB);
+          padOne.b = padB;
+          break;
+        case 'l':
+          if (padSelect === state) return;
+          padSelect = state;
+          padSelectSet(padSelect);
+          padOne.select = padSelect;
+          break;
+        case 'r':
+          if (padStart === state) return;
+          padStart = state;
+          padStartSet(padStart);
+          padOne.start = padStart;
+          break;
+        default:
+          return;
+      }
+      console.log(JSON.stringify(padOne));
+    };
+    const clearStates = (): void => {
+      ['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'a', 'b', 'l', 'r',]
+        .forEach(k => changeKeyState(k, false));
+        console.log(JSON.stringify(padOne));
+    };
+
+    const document = window.document;
+    document.onkeydown = (e) => changeKeyState(e.key, true);
+    document.onkeyup = (e) => changeKeyState(e.key, false);
+    window.onblur = () => clearStates();
+    window.onfocus = () => clearStates();
+  }
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -89,14 +163,14 @@ export default function Home() {
                   <TableBody>
                     <TableRow >
                       <TableCell>Input Status:</TableCell>
-                      <TableCell>{padOneStates.up ? '↑' : ' '}</TableCell>
-                      <TableCell>{padOneStates.down ? '↓' : ' '}</TableCell>
-                      <TableCell>{padOneStates.left ? '←' : ' '}</TableCell>
-                      <TableCell>{padOneStates.right ? '→' : ' '}</TableCell>
-                      <TableCell>{padOneStates.b ? 'B' : ' '}</TableCell>
-                      <TableCell>{padOneStates.a ? 'A' : ' '}</TableCell>
-                      <TableCell>{padOneStates.select ? 'SELECT' : ' '}</TableCell>
-                      <TableCell>{padOneStates.start ? 'START' : ' '}</TableCell>
+                      <TableCell>{padUp ? '↑' : ' '}</TableCell>
+                      <TableCell>{padDown ? '↓' : ' '}</TableCell>
+                      <TableCell>{padLeft ? '←' : ' '}</TableCell>
+                      <TableCell>{padRight ? '→' : ' '}</TableCell>
+                      <TableCell>{padB ? 'B' : ' '}</TableCell>
+                      <TableCell>{padA ? 'A' : ' '}</TableCell>
+                      <TableCell>{padSelect ? 'SELECT' : ' '}</TableCell>
+                      <TableCell>{padStart ? 'START' : ' '}</TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
