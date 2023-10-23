@@ -40,7 +40,6 @@ export default function Page() {
   const stopSound = (): void => {
     if (!play) return;
     oscillator.stop();
-    setPlay(false);
   };
 
   const onChangeVolume = (event: Event, newValue: number | number[]) => {
@@ -52,7 +51,6 @@ export default function Page() {
     if (typeof gainContext !== 'undefined') {
       gainContext.gain.value = gain;
     }
-    stopSound();
   };
 
   return (
