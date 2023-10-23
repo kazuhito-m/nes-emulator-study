@@ -7,7 +7,6 @@ import { useState } from 'react';
 
 let oscillator: OscillatorNode;
 let gainContext: GainNode;
-let freq = 440;
 
 export default function Page() {
   let audio: AudioContext;
@@ -19,6 +18,7 @@ export default function Page() {
   const [volume, setVolume] = useState<number>(30);
   const [gain, setGain] = useState<number>(0.3);
   const [play, setPlay] = useState<boolean>(false);
+  const [freq, setFreq] = useState<number>(440);
 
   const playSound = (command: OscillatorType = 'sine'): void => {
     console.log(command);
@@ -48,9 +48,16 @@ export default function Page() {
     console.log('volume:' + newValue);
     setGain(newValume / 100);
     console.log('gain:' + gain);
-    if (typeof gainContext !== 'undefined') {
-      gainContext.gain.value = gain;
-    }
+    if (typeof gainContext === 'undefined') return;
+    gainContext.gain.value = gain;
+  };
+
+  const onChangeFrequency = (event: Event, newValue: number | number[]) => {
+    const newValume = newValue as number;
+    setFreq(newValume);
+    console.log('freq:' + newValue);
+    if (typeof oscillator === 'undefined') return;
+    oscillator.frequency.value = freq;
   };
 
   return (
@@ -67,6 +74,12 @@ export default function Page() {
         <VolumeDown />
         <Slider aria-label="Default" valueLabelDisplay="auto" value={volume} onChange={onChangeVolume} />
         <VolumeUp />
+      </Stack>
+
+      <Stack spacing={2} direction="row" sx={{ mb: 1 }} alignItems="center">
+        低
+        <Slider aria-label="Default" valueLabelDisplay="auto" min={20} max={1000} value={freq} onChange={onChangeFrequency} />
+        高
       </Stack>
     </Box >
   );
