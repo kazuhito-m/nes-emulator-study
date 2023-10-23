@@ -5,6 +5,10 @@ import { Box, Button, Slider, Stack, Typography } from '@mui/material';
 import { VolumeDown, VolumeUp } from '@mui/icons-material';
 import { useState } from 'react';
 
+let oscillator: OscillatorNode;
+let gainCtx: GainNode;
+let freq = 440;
+
 export default function Page() {
   let audioCtx: AudioContext;
   if (typeof window !== 'undefined') {
@@ -12,13 +16,9 @@ export default function Page() {
     audioCtx = new AudioContext();
   }
 
-  let play = false;
-  let oscillator: OscillatorNode;
-  let gainCtx: GainNode;
-  let freq = 440;
-
   const [volume, setVolume] = useState<number>(30);
   const [gain, setGain] = useState<number>(0.3);
+  const [play, setPlay] = useState<boolean>(false);
 
   const playOsc = (command: OscillatorType = 'sine'): void => {
     console.log(command);
@@ -32,7 +32,7 @@ export default function Page() {
       gainCtx.gain.value = gain;
       console.log(gainCtx);
       oscillator.start();
-      play = true;
+      setPlay(true);
     }
     oscillator.type = command;
   };
@@ -40,7 +40,7 @@ export default function Page() {
   const stopOsc = (): void => {
     if (!play) return;
     oscillator.stop();
-    play = false;
+    setPlay(false);
   };
 
   const onChangeVolume = (event: Event, newValue: number | number[]) => {
@@ -63,7 +63,7 @@ export default function Page() {
       <Button onClick={(e) => playOsc('sawtooth')}>Sawtooth</Button>
       <Button onClick={(e) => stopOsc()}>Stop</Button>
 
-      <Typography fontWeight={700}>{play ? 'Plaing!' : ''}</Typography>
+      <Typography style={{ visibility: play ? "visible" : "hidden" }}>Plaing!</Typography>
 
       <Stack spacing={2} direction="row" sx={{ mb: 1 }} alignItems="center">
         <VolumeDown />
