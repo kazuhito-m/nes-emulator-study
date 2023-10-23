@@ -6,38 +6,38 @@ import { VolumeDown, VolumeUp } from '@mui/icons-material';
 import { useState } from 'react';
 
 let oscillator: OscillatorNode;
-let gainCtx: GainNode;
+let gainContext: GainNode;
 let freq = 440;
 
 export default function Page() {
-  let audioCtx: AudioContext;
+  let audio: AudioContext;
   if (typeof window !== 'undefined') {
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
-    audioCtx = new AudioContext();
+    audio = new AudioContext();
   }
 
   const [volume, setVolume] = useState<number>(30);
   const [gain, setGain] = useState<number>(0.3);
   const [play, setPlay] = useState<boolean>(false);
 
-  const playOsc = (command: OscillatorType = 'sine'): void => {
+  const playSound = (command: OscillatorType = 'sine'): void => {
     console.log(command);
     console.log('gain:' + gain);
     if (!play) {
-      oscillator = audioCtx.createOscillator();
-      gainCtx = audioCtx.createGain();
-      oscillator.connect(gainCtx);
-      gainCtx.connect(audioCtx.destination);
+      oscillator = audio.createOscillator();
+      gainContext = audio.createGain();
+      oscillator.connect(gainContext);
+      gainContext.connect(audio.destination);
       oscillator.frequency.value = freq;
-      gainCtx.gain.value = gain;
-      console.log(gainCtx);
+      gainContext.gain.value = gain;
+      console.log(gainContext);
       oscillator.start();
       setPlay(true);
     }
     oscillator.type = command;
   };
 
-  const stopOsc = (): void => {
+  const stopSound = (): void => {
     if (!play) return;
     oscillator.stop();
     setPlay(false);
@@ -49,19 +49,19 @@ export default function Page() {
     console.log('volume:' + newValue);
     setGain(newValume / 100);
     console.log('gain:' + gain);
-    if (typeof gainCtx !== 'undefined') {
-      gainCtx.gain.value = gain;
+    if (typeof gainContext !== 'undefined') {
+      gainContext.gain.value = gain;
     }
-    stopOsc();
+    stopSound();
   };
 
   return (
     <Box>
-      <Button onClick={(e) => playOsc('sine')}>Sin</Button>
-      <Button onClick={(e) => playOsc('triangle')}>Triangle</Button>
-      <Button onClick={(e) => playOsc('square')}>Square</Button>
-      <Button onClick={(e) => playOsc('sawtooth')}>Sawtooth</Button>
-      <Button onClick={(e) => stopOsc()}>Stop</Button>
+      <Button onClick={(e) => playSound('sine')}>Sin</Button>
+      <Button onClick={(e) => playSound('triangle')}>Triangle</Button>
+      <Button onClick={(e) => playSound('square')}>Square</Button>
+      <Button onClick={(e) => playSound('sawtooth')}>Sawtooth</Button>
+      <Button onClick={(e) => stopSound()}>Stop</Button>
 
       <Typography style={{ visibility: play ? "visible" : "hidden" }}>Plaing!</Typography>
 
