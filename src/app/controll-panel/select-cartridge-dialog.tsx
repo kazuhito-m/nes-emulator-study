@@ -23,7 +23,6 @@ import CloseIcon from '@mui/icons-material/Close';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import LZString, { compress } from 'lz-string';
 import { Cartridge } from '@/domain/model/nes/cartridge/cartridge';
-import { TextCompressor } from '@/domain/model/nes/cartridge/text-compressor';
 import { BinaryAndTextMutualConverter } from '@/domain/model/nes/cartridge/binary-text-mutual-converter';
 
 const Transition = React.forwardRef(function Transition(
@@ -77,7 +76,6 @@ export default function SelectCartridgeDialog(props: SelectCartridgeDialogProps)
     console.log(binary);
 
     const converter = new BinaryAndTextMutualConverter();
-    const textCompressor = new TextCompressor();
 
     const base64Text = converter.encodeBinaryToBase64Text(binary);
     console.log(base64Text);
