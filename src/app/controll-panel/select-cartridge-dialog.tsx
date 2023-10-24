@@ -1,3 +1,5 @@
+"use client"
+
 import * as React from 'react';
 import { SetStateAction, Dispatch, useState, useEffect, ChangeEvent, useRef } from 'react';
 import {
@@ -21,9 +23,11 @@ import {
 import { TransitionProps } from '@mui/material/transitions';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import LZString, { compress } from 'lz-string';
+import LZString from 'lz-string';
 import { Cartridge } from '@/domain/model/nes/cartridge/cartridge';
 import { BinaryAndTextMutualConverter } from '@/domain/model/nes/cartridge/binary-text-mutual-converter';
+import { StorageRepository } from '@/domain/model/storage/storage-repository';
+import { StorageDatasource } from '@/infrastructure/datasource/storage/storage-datasource';
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
@@ -40,6 +44,8 @@ type SelectCartridgeDialogProps = {
 };
 
 export default function SelectCartridgeDialog(props: SelectCartridgeDialogProps) {
+  const repository: StorageRepository = new StorageDatasource();
+
   const [open, setOpen] = useState(false);
   const handleClickOpen = () => setOpen(true);
   const handleClose = () => {
@@ -60,7 +66,7 @@ export default function SelectCartridgeDialog(props: SelectCartridgeDialogProps)
 
     console.log('cartridges.length:' + newItems.length);
 
-    // TODO 保存。
+    repository.registerCartridges(newItems);
   }
 
   const handleAddCartridge = async () => {
@@ -91,7 +97,7 @@ export default function SelectCartridgeDialog(props: SelectCartridgeDialogProps)
 
     clearNewCartridgeInput();
 
-    // TODO 保存。
+    repository.registerCartridges(newItems);
   }
 
   const handleSelectCartridge = (cartridge: Cartridge) => {
@@ -141,13 +147,7 @@ export default function SelectCartridgeDialog(props: SelectCartridgeDialogProps)
     return { id, name, fileName, size, registerTime, fileBinaryOfBase64CompressedText: 'text' };
   }
 
-  const loadCartridges = () => {
-    // TODO 読み出し、以下はサンプルデータ。
-    return [
-      createData('abc', 'スーパーマリオブラザーズ', 'smb.nes', 128000, '2023/10/24 12:40:11'),
-      createData('efg', 'グラディウス', 'gradius.nes', 128000, '2023/10/24 12:40:11'),
-    ];
-  }
+  const loadCartridges = () => repository.getCartridges();
 
   const [cartridges, setCartridges] = useState(loadCartridges());
   const [newCartridgeName, setNewCartridgeName] = useState('');
