@@ -10,7 +10,7 @@ export class TextCompressor {
         );
         const response = new Response(compressedStream);
 
-        return await response.;
+        return await response.text();
     }
 
     public async inflateOf(text: string): Promise<string> {

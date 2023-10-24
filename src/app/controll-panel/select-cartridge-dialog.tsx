@@ -21,6 +21,7 @@ import {
 import { TransitionProps } from '@mui/material/transitions';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import LZString, { compress } from 'lz-string';
 import { Cartridge } from '@/domain/model/nes/cartridge/cartridge';
 import { TextCompressor } from '@/domain/model/nes/cartridge/text-compressor';
 import { BinaryAndTextMutualConverter } from '@/domain/model/nes/cartridge/binary-text-mutual-converter';
@@ -82,21 +83,19 @@ export default function SelectCartridgeDialog(props: SelectCartridgeDialogProps)
     console.log(base64Text);
     console.log('length: ' + base64Text.length);
 
-    const compressedText = await textCompressor.deflateOf(base64Text);
+    const compressedText = LZString.compress(base64Text);
 
     console.log('圧縮後');
     console.log(compressedText);
     console.log('length: ' + compressedText.length);
 
-
-    const inflatedText = await textCompressor.inflateOf(compressedText);
-
+    const inflatedText = LZString.decompress(compressedText);
 
     console.log('解凍後');
     console.log(inflatedText);
     console.log('length: ' + inflatedText.length);
 
-    console.log('復号して元のテキストと同じか: ' + base64Text === inflatedText);
+    console.log('復号して元のテキストと同じか: ' + (base64Text === inflatedText));
 
     const cartridge: Cartridge = {
       id: crypto.randomUUID(),
