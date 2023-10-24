@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useState } from 'react';
-import { Box, CssBaseline, Grid, Paper, TableHead, Toolbar } from '@mui/material';
+import { Box, CssBaseline, Grid, Paper, Toolbar } from '@mui/material';
 import MuiAppBar from '@mui/material/AppBar';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
@@ -12,6 +12,7 @@ import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
+import SelectCartridgeDialog from './controll-panel/select-cartridge-dialog';
 
 export default function Home() {
   // TODO キーボード周りの入力系は、今かなりやっつけなので、整理・分離したい。
@@ -83,7 +84,7 @@ export default function Home() {
     const clearStates = (): void => {
       ['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'a', 'b', 'l', 'r',]
         .forEach(k => changeKeyState(k, false));
-        console.log(JSON.stringify(padOne));
+      console.log(JSON.stringify(padOne));
     };
 
     const document = window.document;
@@ -151,7 +152,8 @@ export default function Home() {
                   height: 550,
                 }}
               >
-                Controll Panel
+                <div>Controll Panel</div>
+                <SelectCartridgeDialog />
               </Paper>
             </Grid>
 
