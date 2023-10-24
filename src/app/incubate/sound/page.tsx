@@ -42,14 +42,15 @@ export default function Page() {
   const stopSound = (): void => {
     if (!play) return;
     oscillator.stop();
+    gainContext.disconnect();
+    oscillator.disconnect();
+    setPlay(false);
   };
 
   const onChangeVolume = (event: Event, newValue: number | number[]) => {
     const newValume = newValue as number;
     setVolume(newValume);
-    console.log('volume:' + newValue);
     setGain(newValume / 100);
-    console.log('gain:' + gain);
     if (typeof gainContext === 'undefined') return;
     gainContext.gain.value = gain;
   };
@@ -57,7 +58,6 @@ export default function Page() {
   const onChangeFrequency = (event: Event, newValue: number | number[]) => {
     const newValume = newValue as number;
     setFreq(newValume);
-    console.log('freq:' + newValue);
     if (typeof oscillator === 'undefined') return;
     oscillator.frequency.value = freq;
   };
