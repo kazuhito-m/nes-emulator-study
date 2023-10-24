@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { SetStateAction, Dispatch, useState } from 'react';
+import { SetStateAction, Dispatch, useState, useEffect, ChangeEvent, useRef, RefObject, MutableRefObject } from 'react';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import AppBar from '@mui/material/AppBar';
@@ -28,9 +28,12 @@ type SelectCartridgeDialogProps = {
 };
 
 export default function SelectCartridgeDialog(props: SelectCartridgeDialogProps) {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
   const handleClickOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    clearNewCartridgeInput();
+    setOpen(false);
+  }
 
   const handleRemoveCartridge = (cartridge: Cartridge) => {
     if (cartridge.id === props.nowTargetCartridge?.id) {
@@ -49,7 +52,20 @@ export default function SelectCartridgeDialog(props: SelectCartridgeDialogProps)
   }
 
   const handleAddCartridge = () => {
-    alert('TODO Nesファイルの追加。');
+    const file = newCartridgeFile as File;
+
+    const cartridge: Cartridge = {
+      id: crypto.randomUUID(),
+      name: newCartridgeName,
+      fileName: file.name,
+      size: file.size,
+      registerTime: new Date().toLocaleString(),
+    };
+    const newItems = [...cartridges];
+    newItems.push(cartridge);
+    setCartridges(newItems);
+
+    clearNewCartridgeInput();
 
     // TODO 保存。
   }
@@ -57,6 +73,15 @@ export default function SelectCartridgeDialog(props: SelectCartridgeDialogProps)
   const handleSelectCartridge = (cartridge: Cartridge) => {
     props.handlerChangeCartridge(cartridge);
     setOpen(false);
+  }
+
+  const clearNewCartridgeInput = (): void => {
+    setNewCartridgeName('');
+    setNewCartridgeFile(null);
+    setDisableAddCartridge(true);
+
+    console.log('current:' + newCartridgeFileRef.current);
+    newCartridgeFileRef.current.value = '';
   }
 
   // ---- table contents ----
@@ -101,6 +126,28 @@ export default function SelectCartridgeDialog(props: SelectCartridgeDialogProps)
   }
 
   const [cartridges, setCartridges] = useState(loadCartridges());
+  const [newCartridgeName, setNewCartridgeName] = useState('');
+  const [newCartridgeFile, setNewCartridgeFile] = useState<File | null>(null);
+  const [disableAddCartridge, setDisableAddCartridge] = useState(true);
+  useEffect(() => console.log(newCartridgeFile), [newCartridgeFile]);
+  const newCartridgeFileRef: any = useRef();
+
+  const handleName = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
+    const ie = e as ChangeEvent<HTMLInputElement>;
+    const name = ie.target.value;
+    setNewCartridgeName(name);
+
+    setDisableAddCartridge(name.length === 0 || !newCartridgeFile);
+  }
+
+  const handleFile = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
+    const ie = e as ChangeEvent<HTMLInputElement>;
+    const files = ie.target.files;
+    const file = files && files.length > 0 ? files[0] : null;
+    setNewCartridgeFile(file);
+
+    setDisableAddCartridge(newCartridgeName.length === 0 || !file);
+  }
 
   return (
     <div>
@@ -132,9 +179,9 @@ export default function SelectCartridgeDialog(props: SelectCartridgeDialogProps)
         <Card sx={{ minWidth: 275 }}>
           <CardContent>
             Register File:
-            <TextField id="outlined-basic" label="Name" variant="outlined" />
-            <TextField type="file" />
-            <Button variant="contained" onClick={handleAddCartridge}>
+            <TextField label="Name" variant="outlined" value={newCartridgeName} onChange={handleName} />
+            <TextField type="file" onChange={e => handleFile(e)} ref={newCartridgeFileRef} />
+            <Button variant="contained" onClick={handleAddCartridge} disabled={disableAddCartridge}>
               Add Cartridge
             </Button>
           </CardContent>
