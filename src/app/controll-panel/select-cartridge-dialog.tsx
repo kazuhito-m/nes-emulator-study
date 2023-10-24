@@ -72,28 +72,10 @@ export default function SelectCartridgeDialog(props: SelectCartridgeDialogProps)
       return;
     }
 
-    console.log('binaryの内容。');
-    console.log(binary);
-
     const converter = new BinaryAndTextMutualConverter();
 
     const base64Text = converter.encodeBinaryToBase64Text(binary);
-    console.log(base64Text);
-    console.log('length: ' + base64Text.length);
-
     const compressedText = LZString.compress(base64Text);
-
-    console.log('圧縮後');
-    console.log(compressedText);
-    console.log('length: ' + compressedText.length);
-
-    const inflatedText = LZString.decompress(compressedText);
-
-    console.log('解凍後');
-    console.log(inflatedText);
-    console.log('length: ' + inflatedText.length);
-
-    console.log('復号して元のテキストと同じか: ' + (base64Text === inflatedText));
 
     const cartridge: Cartridge = {
       id: crypto.randomUUID(),
