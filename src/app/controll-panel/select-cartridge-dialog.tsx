@@ -44,7 +44,7 @@ type SelectCartridgeDialogProps = {
 };
 
 export default function SelectCartridgeDialog(props: SelectCartridgeDialogProps) {
-  const repository: StorageRepository = new StorageDatasource();
+  const repository: StorageRepository = new StorageDatasource(window.localStorage);
 
   const [open, setOpen] = useState(false);
   const handleClickOpen = () => setOpen(true);
