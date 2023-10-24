@@ -10,6 +10,7 @@ import Slide from '@mui/material/Slide';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { TransitionProps } from '@mui/material/transitions';
 import { Card, CardContent, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from '@mui/material';
+import { Cartridge } from '@/domain/model/nes/cartridge/cartridge';
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
@@ -60,14 +61,6 @@ export default function SelectCartridgeDialog() {
     },
     { id: 'registerTime', label: 'Register Time', minWidth: 170, align: 'right' },
   ];
-
-  interface Cartridge {
-    id: string;
-    name: string;
-    fileName: string;
-    size: number;
-    registerTime: string;
-  }
 
   function createData(
     id: string,
