@@ -61,8 +61,17 @@ export default function SelectCartridgeDialog(props: SelectCartridgeDialogProps)
     // TODO 保存。
   }
 
-  const handleAddCartridge = () => {
+  const handleAddCartridge = async () => {
     const file = newCartridgeFile as File;
+
+    const binary = await file.arrayBuffer();
+    if (!binary) {
+      alert(`ファイルの読み込みに失敗しました。 path:${file.name}`)
+      return;
+    }
+
+    console.log('binaryの内容。');
+    console.log(binary);
 
     const cartridge: Cartridge = {
       id: crypto.randomUUID(),
