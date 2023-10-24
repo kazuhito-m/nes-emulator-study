@@ -29,7 +29,6 @@ import { BinaryAndTextMutualConverter } from '@/domain/model/nes/cartridge/binar
 import { StorageRepository } from '@/domain/model/storage/storage-repository';
 import { StorageDatasource } from '@/infrastructure/datasource/storage/storage-datasource';
 
-const repository: StorageRepository = new StorageDatasource();
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
@@ -46,8 +45,21 @@ type SelectCartridgeDialogProps = {
 };
 
 export default function SelectCartridgeDialog(props: SelectCartridgeDialogProps) {
+  const repository: StorageRepository = new StorageDatasource();
+
   const [open, setOpen] = useState(false);
-  const handleClickOpen = () => setOpen(true);
+  const [cartridges, setCartridges] = useState<Cartridge[]>([]);
+  const [newCartridgeName, setNewCartridgeName] = useState('');
+  const [newCartridgeFile, setNewCartridgeFile] = useState<File | null>(null);
+  const [disableAddCartridge, setDisableAddCartridge] = useState(true);
+  useEffect(() => console.log(newCartridgeFile), [newCartridgeFile]);
+  const newCartridgeFileRef: any = useRef();
+
+  const handleClickOpen = () => {
+    setCartridges(repository.getCartridges())
+    setOpen(true);
+  }
+
   const handleClose = () => {
     clearNewCartridgeInput();
     setOpen(false);
@@ -136,15 +148,6 @@ export default function SelectCartridgeDialog(props: SelectCartridgeDialogProps)
     },
     { id: 'registerTime', label: 'Register Time', minWidth: 170, align: 'right' },
   ];
-
-  const loadCartridges = () => repository.getCartridges();
-
-  const [cartridges, setCartridges] = useState(loadCartridges());
-  const [newCartridgeName, setNewCartridgeName] = useState('');
-  const [newCartridgeFile, setNewCartridgeFile] = useState<File | null>(null);
-  const [disableAddCartridge, setDisableAddCartridge] = useState(true);
-  useEffect(() => console.log(newCartridgeFile), [newCartridgeFile]);
-  const newCartridgeFileRef: any = useRef();
 
   const handleName = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
     const ie = e as ChangeEvent<HTMLInputElement>;
