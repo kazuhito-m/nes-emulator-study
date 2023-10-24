@@ -29,6 +29,8 @@ import { BinaryAndTextMutualConverter } from '@/domain/model/nes/cartridge/binar
 import { StorageRepository } from '@/domain/model/storage/storage-repository';
 import { StorageDatasource } from '@/infrastructure/datasource/storage/storage-datasource';
 
+const repository: StorageRepository = new StorageDatasource();
+
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
     children: React.ReactElement;
@@ -44,8 +46,6 @@ type SelectCartridgeDialogProps = {
 };
 
 export default function SelectCartridgeDialog(props: SelectCartridgeDialogProps) {
-  const repository: StorageRepository = new StorageDatasource(window.localStorage);
-
   const [open, setOpen] = useState(false);
   const handleClickOpen = () => setOpen(true);
   const handleClose = () => {

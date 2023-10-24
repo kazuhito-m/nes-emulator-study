@@ -2,14 +2,14 @@ import { Cartridge } from "@/domain/model/nes/cartridge/cartridge";
 import { StorageRepository } from "@/domain/model/storage/storage-repository";
 
 export class StorageDatasource implements StorageRepository {
-    constructor(private readonly storage: Storage) { }
-
     private static readonly STORAGE_ID = 'nes-emulator-storage';
 
     public getCartridges(): Cartridge[] {
+        if (typeof window === 'undefined') return [];
+
         const startTime = performance.now();
 
-        const jsonText = this.storage.getItem(StorageDatasource.STORAGE_ID);
+        const jsonText = localStorage.getItem(StorageDatasource.STORAGE_ID);
         if (!jsonText) return [];
 
         const cartridges = JSON.parse(jsonText);
@@ -23,10 +23,12 @@ export class StorageDatasource implements StorageRepository {
     }
 
     public registerCartridges(cartridges: Cartridge[]): void {
+        if (typeof window === 'undefined') return;
+
         const startTime = performance.now();
 
         const jsonText = JSON.stringify(cartridges);
-        this.storage.setItem(StorageDatasource.STORAGE_ID, jsonText);
+        localStorage.setItem(StorageDatasource.STORAGE_ID, jsonText);
 
         const ms = performance.now() - startTime;
         // console.log('register: ' + jsonText)
@@ -36,6 +38,7 @@ export class StorageDatasource implements StorageRepository {
     }
 
     public clear(): void {
-        this.storage.removeItem(StorageDatasource.STORAGE_ID);
+        if (typeof window === 'undefined') return;
+        localStorage.removeItem(StorageDatasource.STORAGE_ID);
     }
 }
