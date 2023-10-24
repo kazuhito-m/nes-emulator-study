@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, CssBaseline, Grid, Paper, Toolbar } from '@mui/material';
 import MuiAppBar from '@mui/material/AppBar';
 import Typography from '@mui/material/Typography';
@@ -13,6 +13,7 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import SelectCartridgeDialog from './controll-panel/select-cartridge-dialog';
+import { Cartridge } from '@/domain/model/nes/cartridge/cartridge';
 
 export default function Home() {
   // TODO キーボード周りの入力系は、今かなりやっつけなので、整理・分離したい。
@@ -94,6 +95,9 @@ export default function Home() {
     window.onfocus = () => clearStates();
   }
 
+  const [targetCartridge, targetCartridgeSet] = useState<Cartridge | null>(null);
+  useEffect(() => console.log("カートリッジが変更されました。cartridge: " + targetCartridge?.name), [targetCartridge]);
+
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
@@ -153,7 +157,10 @@ export default function Home() {
                 }}
               >
                 <div>Controll Panel</div>
-                <SelectCartridgeDialog />
+                <SelectCartridgeDialog
+                  handlerChangeCartridge={targetCartridgeSet}
+                  nowTargetCartridge={targetCartridge}
+                />
               </Paper>
             </Grid>
 
@@ -180,10 +187,10 @@ export default function Home() {
                 <Table size="small">
                   <TableBody>
                     <TableRow >
-                      <TableCell>paramA</TableCell>
-                      <TableCell>x</TableCell>
-                      <TableCell>paramB</TableCell>
-                      <TableCell>y</TableCell>
+                      <TableCell>Cartridge Name</TableCell>
+                      <TableCell>{targetCartridge?.name}</TableCell>
+                      <TableCell>Original File Name</TableCell>
+                      <TableCell>{targetCartridge?.fileName}</TableCell>
                     </TableRow>
                     <TableRow >
                       <TableCell>paramC</TableCell>

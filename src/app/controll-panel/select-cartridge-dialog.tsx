@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { SetStateAction, Dispatch, useState } from 'react';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import AppBar from '@mui/material/AppBar';
@@ -21,21 +22,40 @@ const Transition = React.forwardRef(function Transition(
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export default function SelectCartridgeDialog() {
+type SelectCartridgeDialogProps = {
+  handlerChangeCartridge: Dispatch<SetStateAction<Cartridge | null>>
+  nowTargetCartridge: Cartridge | null
+};
+
+export default function SelectCartridgeDialog(props: SelectCartridgeDialogProps) {
   const [open, setOpen] = React.useState(false);
   const handleClickOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
   const handleRemoveCartridge = (cartridge: Cartridge) => {
-    alert(`TODO Nesファイルの削除。id:${cartridge.id}, name:${cartridge.name}`);
+    if (cartridge.id === props.nowTargetCartridge?.id) {
+      alert('現在選択中のカートリッジは削除出来ません。');
+      return;
+    }
+
+    const newItems = [...cartridges];
+    const foundIndex = newItems.findIndex(c => c.id === cartridge.id);
+    newItems.splice(foundIndex, 1);
+    setCartridges(newItems);
+
+    console.log('cartridges.length:' + newItems.length);
+
+    // TODO 保存。
   }
 
   const handleAddCartridge = () => {
     alert('TODO Nesファイルの追加。');
+
+    // TODO 保存。
   }
 
   const handleSelectCartridge = (cartridge: Cartridge) => {
-    alert(`TODO Neファイルの選択変更＆上に伝播。id:${cartridge.id}, name:${cartridge.name}`);
+    props.handlerChangeCartridge(cartridge);
     setOpen(false);
   }
 
@@ -72,10 +92,15 @@ export default function SelectCartridgeDialog() {
     return { id, name, fileName, size, registerTime };
   }
 
-  const rows = [
-    createData('abc', 'スーパーマリオブラザーズ', 'smb.nes', 128000, '2023/10/24 12:40:11'),
-    createData('efg', 'グラディウス', 'gradius.nes', 128000, '2023/10/24 12:40:11'),
-  ];
+  const loadCartridges = () => {
+    // TODO 読み出し、以下はサンプルデータ。
+    return [
+      createData('abc', 'スーパーマリオブラザーズ', 'smb.nes', 128000, '2023/10/24 12:40:11'),
+      createData('efg', 'グラディウス', 'gradius.nes', 128000, '2023/10/24 12:40:11'),
+    ];
+  }
+
+  const [cartridges, setCartridges] = useState(loadCartridges());
 
   return (
     <div>
@@ -133,8 +158,9 @@ export default function SelectCartridgeDialog() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows.map((row) => {
-                return (
+              {cartridges
+                .sort((left, right) => left.name.localeCompare(right.name))
+                .map(row =>
                   <TableRow hover role="button" tabIndex={-1} key={row.id} >
                     {columns.map((column) => {
                       const value = row[column.id];
@@ -157,8 +183,7 @@ export default function SelectCartridgeDialog() {
                       </IconButton>
                     </TableCell>
                   </TableRow>
-                );
-              })}
+                )}
             </TableBody>
           </Table>
         </TableContainer>
