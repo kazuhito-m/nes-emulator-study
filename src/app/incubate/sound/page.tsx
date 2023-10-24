@@ -22,9 +22,8 @@ export default function Page() {
   const [play, setPlay] = useState<boolean>(false);
   const [freq, setFreq] = useState<number>(440);
 
-  const playSound = (command: OscillatorType = 'sine'): void => {
-    console.log(command);
-    console.log('gain:' + gain);
+  const playSound = (type: OscillatorType = 'sine'): void => {
+    console.log('type:' + type + ', gain:' + gain + ', freq:' + freq);
     if (!play) {
       oscillator = audio.createOscillator();
       gainContext = audio.createGain();
@@ -36,7 +35,7 @@ export default function Page() {
       oscillator.start();
       setPlay(true);
     }
-    oscillator.type = command;
+    oscillator.type = type;
   };
 
   const stopSound = (): void => {
