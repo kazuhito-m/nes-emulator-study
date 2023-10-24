@@ -5,6 +5,8 @@ import { Box, Button, Slider, Stack, Typography } from '@mui/material';
 import { VolumeDown, VolumeUp } from '@mui/icons-material';
 import { useState } from 'react';
 
+const OSCILLATOR_TYPES: OscillatorType[] = ["sine", "square", "triangle", "sawtooth"];
+
 let oscillator: OscillatorNode;
 let gainContext: GainNode;
 
@@ -62,10 +64,9 @@ export default function Page() {
 
   return (
     <Box>
-      <Button onClick={(e) => playSound('sine')}>Sin</Button>
-      <Button onClick={(e) => playSound('triangle')}>Triangle</Button>
-      <Button onClick={(e) => playSound('square')}>Square</Button>
-      <Button onClick={(e) => playSound('sawtooth')}>Sawtooth</Button>
+      {OSCILLATOR_TYPES.map((type) => {
+        return <Button key={type} onClick={(e) => playSound(type)}>{type}</Button>;
+      })}
       <Button onClick={(e) => stopSound()}>Stop</Button>
 
       <Typography style={{ visibility: play ? "visible" : "hidden" }}>Plaing!</Typography>
