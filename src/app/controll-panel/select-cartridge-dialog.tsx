@@ -137,16 +137,6 @@ export default function SelectCartridgeDialog(props: SelectCartridgeDialogProps)
     { id: 'registerTime', label: 'Register Time', minWidth: 170, align: 'right' },
   ];
 
-  function createData(
-    id: string,
-    name: string,
-    fileName: string,
-    size: number,
-    registerTime: string,
-  ): Cartridge {
-    return { id, name, fileName, size, registerTime, fileBinaryOfBase64CompressedText: 'text' };
-  }
-
   const loadCartridges = () => repository.getCartridges();
 
   const [cartridges, setCartridges] = useState(loadCartridges());
