@@ -4,4 +4,5 @@ export interface Cartridge {
     fileName: string;
     size: number;
     registerTime: string;
+    fileBinaryOfBase64CompressedText: string;
 }

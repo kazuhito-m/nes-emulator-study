@@ -22,6 +22,8 @@ import { TransitionProps } from '@mui/material/transitions';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { Cartridge } from '@/domain/model/nes/cartridge/cartridge';
+import { TextCompressor } from '@/domain/model/nes/cartridge/text-compressor';
+import { BinaryAndTextMutualConverter } from '@/domain/model/nes/cartridge/binary-text-mutual-converter';
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
@@ -73,12 +75,36 @@ export default function SelectCartridgeDialog(props: SelectCartridgeDialogProps)
     console.log('binaryの内容。');
     console.log(binary);
 
+    const converter = new BinaryAndTextMutualConverter();
+    const textCompressor = new TextCompressor();
+
+    const base64Text = converter.encodeBinaryToBase64Text(binary);
+    console.log(base64Text);
+    console.log('length: ' + base64Text.length);
+
+    const compressedText = await textCompressor.deflateOf(base64Text);
+
+    console.log('圧縮後');
+    console.log(compressedText);
+    console.log('length: ' + compressedText.length);
+
+
+    const inflatedText = await textCompressor.inflateOf(compressedText);
+
+
+    console.log('解凍後');
+    console.log(inflatedText);
+    console.log('length: ' + inflatedText.length);
+
+    console.log('復号して元のテキストと同じか: ' + base64Text === inflatedText);
+
     const cartridge: Cartridge = {
       id: crypto.randomUUID(),
       name: newCartridgeName,
       fileName: file.name,
       size: file.size,
       registerTime: new Date().toLocaleString(),
+      fileBinaryOfBase64CompressedText: compressedText,
     };
     const newItems = [...cartridges];
     newItems.push(cartridge);
@@ -133,7 +159,7 @@ export default function SelectCartridgeDialog(props: SelectCartridgeDialogProps)
     size: number,
     registerTime: string,
   ): Cartridge {
-    return { id, name, fileName, size, registerTime };
+    return { id, name, fileName, size, registerTime, fileBinaryOfBase64CompressedText: 'text' };
   }
 
   const loadCartridges = () => {
