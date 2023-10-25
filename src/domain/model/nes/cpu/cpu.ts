@@ -1119,7 +1119,29 @@ export class Cpu {
 
     // CPU の現在の状態を返す
     public getCpuInfoForDebug(): CpuInfo {
+        // いまの PC から 命令 取得
+        const opcode = this.m_pCpuBus.readByte(this.PC);
+        const inst = Instruction.from(opcode);
+        const instBytes = new Array(3).fill(0);
 
+        if (inst.m_Bytes > 3) throw new Error('Instruction byte over.');
+
+        for (let i = 0; i < inst.m_Bytes; i++) {
+            const byte = this.m_pCpuBus.readByte(i + this.PC);
+            instBytes[i] = byte;
+        }
+
+        return new CpuInfo(
+            this.A,
+            this.X,
+            this.Y,
+            this.PC,
+            this.SP,
+            this.P,
+            inst,
+            instBytes,
+            instBytes.length
+        );
     }
 
     public interrupt(type: InterruptType): void {
