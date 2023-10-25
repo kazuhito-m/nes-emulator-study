@@ -84,7 +84,7 @@ export class Cpu {
                     }
                     else {
                         const [addr, dummy] = this.FetchAddr(inst.m_AddressingMode);
-                        this.this.m_pCpuBus.WriteByte(addr, res);
+                        this.m_pCpuBus.writeByte(addr, res);
                     }
 
                     this.PC += inst.m_Bytes;
@@ -599,7 +599,7 @@ export class Cpu {
                     const [arg, additionalCyc] = this.FetchArg(inst.m_AddressingMode);
 
                     let res = arg >> 1;
-                    res |= this.this.GetCarryFlag() ? 0x80 : 0;
+                    res |= this.GetCarryFlag() ? 0x80 : 0;
 
                     const carryFlag = (arg & 1) == 1;
                     const zeroFlag = res == 0;
@@ -1014,7 +1014,7 @@ export class Cpu {
 
                     const carryFlag = (arg & 1) == 1;
                     this.SetCarryFlag(carryFlag);
-                    this.this.m_pCpuBus.WriteByte(addr, res);
+                    this.m_pCpuBus.writeByte(addr, res);
 
                     // ADC
                     const calc = (this.A) + res + (this.GetCarryFlag() ? 1 : 0);
@@ -1114,7 +1114,6 @@ export class Cpu {
                 // abort();
                 throw new Error('unexpected default');
         }
-        return 0;
     }
 
 
@@ -1155,7 +1154,7 @@ export class Cpu {
         // TODO 実装。
     }
 
-    private this.SetZeroFlag(flag: boolean): void {
+    private SetZeroFlag(flag: boolean): void {
         // TODO 実装。
     }
 
@@ -1164,7 +1163,7 @@ export class Cpu {
     }
 
 
-    private this.GetNegativeFlag(): boolean {
+    private GetNegativeFlag(): boolean {
         // TODO 実装。
     }
 
