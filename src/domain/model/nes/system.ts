@@ -5,18 +5,18 @@ import { Pad, PadButton, PadId } from "./input/pad/pad";
 export class System {
     // 0x0000 - 0x07FF: WRAM
     // 0x0800 - 0x1FFF: WRAM Mirror * 3 
-    private m_Wram: number[] = new Array(Constants.WRAM_SIZE);
+    public m_Wram: number[] = new Array(Constants.WRAM_SIZE);
     // 0x2000 - 0x2007: PPU IO Register
     // 0x2009 - 0x3FFF: PPU IO Register Mirror * 1023
     // PPU レジスタは CpuBus を通して直接 PPU のレジスタを読み書きすることにする
 
     // 0x4000 - 0x401F: APU IO, PAD
-    private m_IoReg: number[] = new Array(Constants.APU_IO_REG_SIZE);
+    public m_IoReg: number[] = new Array(Constants.APU_IO_REG_SIZE);
 
     // Pad: 0x4016, 0x4017
-    private m_Pads = [new Pad(), new Pad()];
+    public m_Pads = [new Pad(), new Pad()];
 
-    private m_Cassette = new Cassette();
+    public m_Cassette = new Cassette();
 
     // TORIAEZU: カセットの内容はコンストラクタで受け取る
     constructor(pBuffer: number[], bufferSize: number) {

@@ -15,7 +15,7 @@ export class Ppu {
     // 0x2002
     private PPUSTATUS = 0;
     // 0x2003
-    private OAMADDR = 0;
+    public OAMADDR = 0;
     // 0x2004 = OAMDATA は OAM(Sprite RAM) に書かれるので保持しない
     // 0x2005 PPUSCROLL の代わりに描画用内部レジスタ(https://wiki.nesdev.com/w/index.php/PPU_scrolling#PPU_internal_registers)を使う、 PPUADDR はまあそのまま使っちゃう
     private m_InternalReg: PpuInternalRegister = new PpuInternalRegister();
@@ -45,7 +45,7 @@ export class Ppu {
     // ---- buffres ----
 
     // PPU は 256 byte の Object Attribute Memory(Sprite を書き込む場所)をもつ
-    private m_Oam: number[] = new Array(Constants.OAM_SIZE);
+    public m_Oam: number[] = new Array(Constants.OAM_SIZE);
 
     // PPU の出力(絵)。 Ppu に持たせるのが適切か若干微妙だけどとりあえずここ
     private m_PpuOutput: number[][] = initializeTwoDimensionalArray<number>(Constants.PPU_OUTPUT_Y, Constants.PPU_OUTPUT_X);
