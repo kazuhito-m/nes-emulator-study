@@ -9,6 +9,11 @@ export enum PadButton {
     RIGHT
 }
 
+export enum PadId {
+    Zero = 0,
+    One
+}
+
 enum BitOfButton {
     BUTTON_A = 1,
     BUTTON_B = 2,
