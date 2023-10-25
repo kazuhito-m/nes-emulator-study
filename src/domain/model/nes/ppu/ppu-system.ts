@@ -7,10 +7,10 @@ export class PpuSystem {
     constructor(
         // 0x0000 - 0x1FFF: CHR-ROM(System のカセットを参照する)
         // 0x2000 - 0x2FFF: Nametable
-        private m_NameTable: number[] = new Array(Constants.NAMETABLE_SIZE),
+        public m_NameTable: number[] = new Array(Constants.NAMETABLE_SIZE),
         // 0x3000 - 0x3EFF: 0x2000-0x2EFF のミラー(0x2FFF までではないことに注意する)
         // 0x3F00 - 0x3F1F: Palette
-        private m_Pallettes: number[] = new Array(Constants.PALETTE_SIZE),
+        public m_Pallettes: number[] = new Array(Constants.PALETTE_SIZE),
         // 0x3F20 - 0x3FFF: 0x3F00 - 0x3FFF のミラー
     ) { }
 }
