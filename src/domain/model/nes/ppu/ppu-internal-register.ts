@@ -15,20 +15,44 @@ export class PpuInternalRegister {
     private static readonly COARSE_Y_MASK = 0b000001111100000;
     private static readonly FINE_Y_MASK = 0b111000000000000;
 
-    public setCoarseX(target: PpuInternalRegistertarget, data: number): void { }
-    public setCoarseY(target: PpuInternalRegistertarget, data: number): void { }
-    public setNametableSelect(target: PpuInternalRegistertarget, data: number): void { }
-    public setFineY(target: PpuInternalRegistertarget, data: number): void { }
-    public setFineX(data: number): void { }
-    public setW(data: boolean): void { }
+    public setCoarseX(target: PpuInternalRegistertarget, data: number): void {
+        // TODO 実装。
+    }
+
+    public setCoarseY(target: PpuInternalRegistertarget, data: number): void {
+        // TODO 実装。
+    }
+
+    public setNametableSelect(target: PpuInternalRegistertarget, data: number): void {
+        // TODO 実装。
+    }
+
+    public setFineY(target: PpuInternalRegistertarget, data: number): void {
+        // TODO 実装。
+    }
+
+    public setFineX(data: number): void {
+        // TODO 実装。
+    }
+
+    public setW(data: boolean): void {
+        // TODO 実装。
+    }
+
     // PPUADDR 反映用(紛らわしいけど、 PPUADDR としては使わない、PPUADDR への書き込みと PPUSCROLL への書き込みを混ぜて使ってるゲームのため)
-    public setUpperPpuAddr(data: number): void { }
-    public setLowerPpuAddr(data: number): void { }
+    public setUpperPpuAddr(data: number): void {
+        // TODO 実装。
+    }
+
+    public setLowerPpuAddr(data: number): void {
+        // TODO 実装。
+    }
 
     public getCoarseX(target: PpuInternalRegistertarget): number {
         // TODO 実装。以下は仮。
         return 0;
     }
+
     public getCoarseY(target: PpuInternalRegistertarget): number {
         // TODO 実装。以下は仮。
         return 0;
@@ -37,34 +61,48 @@ export class PpuInternalRegister {
         // TODO 実装。以下は仮。
         return 0;
     }
+
     public getFineY(target: PpuInternalRegistertarget): number {
         // TODO 実装。以下は仮。
         return 0;
     }
+
     public getFineX(): number {
         // TODO 実装。以下は仮。
         return 0;
     }
+
     public getW(): boolean {
         // TODO 実装。以下は仮。
         return false;
     }
 
     // 描画中のインクリメント
-    public incrementCoarseX(): void { }
-    public incrementY(): void { }
+    public incrementCoarseX(): void {
+        // TODO 実装。
+    }
+
+    public incrementY(): void {
+        // TODO 実装。
+    }
 
     // 現在のタイルと attribute table のアドレス取得
     public getTileAddress(): number {
         // TODO 実装。以下は仮。
         return 0;
     }
+
     public getAttributeAddress(): number {
         // TODO 実装。以下は仮。
         return 0;
     }
 
     // t の変更を v に反映
-    public updateHorizontalV(): void { }
-    public updateVerticalV(): void { }
+    public updateHorizontalV(): void {
+        // TODO 実装。
+    }
+
+    public updateVerticalV(): void {
+        // TODO 実装。
+    }
 }
