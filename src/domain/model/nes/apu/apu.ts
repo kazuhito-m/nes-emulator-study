@@ -41,7 +41,7 @@ export class Apu {
     private m_pApuBus?: ApuBus;
 
     //  wave のサンプルを追加するコールバック
-    private m_pAddWaveSample?: (value: number) => void;
+    private m_pAddWaveSample: (value: number) => void;
     private m_AddWaveSampleCounter = 0;
     private m_AddWaveSampleCounterMax = 40;
 
@@ -105,15 +105,93 @@ export class Apu {
 
     // CPU クロックを受け取ってその分だけ APU を動かす。 APU クロックでなく CPU クロック分であることに注意する。
     // DMA によって CPU が停止した場合、停止した CPU クロック数を返す
-    public Run(cpuClock: number): void {
-        // TODO 実装。
-    }
+    public Run(cpuClock: number): number {
+        let retCpuClock = 0;
 
+        // cpuClock ぶんだけ APU うごかす
+        for (let i = 0; i < cpuClock; i++) {
+            if (this.m_CpuClock % 2 == 0) {
+                // 1 APU サイクルごとに実行したい処理
+                this.m_SquareWaveChannel1.ClockTimer();
+                this.m_SquareWaveChannel2.ClockTimer();
+                this.m_NoiseChannel.ClockTimer();
+            }
+
+            // 三角波 と DMC は 1 CPU クロックごとにタイマーをクロック
+            this.m_TriangleWaveChannel.ClockTimer();
+            retCpuClock += this.m_DmcChannel.ClockTimer();
+
+            // clock frame sequencer
+            // フレームシーケンサは CPU クロックベースで動く
+            if (this.m_SequencerCounter > 0) {
+                this.m_SequencerCounter--;
+            }
+            else {
+                const [isQuarterFrame, isHalfFrame, isRaiseIrq] = this.GetPhaseStatus();
+
+                if (isQuarterFrame) {
+                    this.ClockQuarterFrame();
+                }
+                if (isHalfFrame) {
+                    this.ClockHalfFrame();
+                }
+                if (isRaiseIrq) {
+                    // TODO: CpuBus を使って IRQ 割り込みを上げる デバッグ
+                    this.m_pApuBus!.GenerateCpuInterrupt();
+                    this.m_IrqPending = true;
+                }
+
+                this.StepSeqPhase();
+                this.m_SequencerCounter = ApuTable.ClocksToNextSequence;
+            }
+
+            // 出力値の決定 (1 APU クロックごと)
+            if (this.m_CpuClock % 2 == 0) {
+                // TODO: ちゃんとミックスする
+                this.m_OutputVal = 0;
+                this.m_OutputVal += this.m_SquareWaveChannel1.GetOutPut();
+                this.m_OutputVal += this.m_SquareWaveChannel2.GetOutPut();
+                this.m_OutputVal += this.m_TriangleWaveChannel.GetOutPut();
+                this.m_OutputVal += this.m_NoiseChannel.GetOutPut();
+                // TORIAEZU: DMC だけ 7bit なのでほかと同じように4bitに丸める
+                this.m_OutputVal += (this.m_DmcChannel.GetOutPut() >> 3);
+            }
+
+            // 40 or 41 クロックごとにコールバック関数で音を出力
+            if (this.m_AddWaveSampleCounter >= this.m_AddWaveSampleCounterMax) {
+                this.m_AddWaveSampleCounter = 0;
+                this.m_AddWaveSampleCounterMax == 40 ? 41 : 40;
+                this.m_pAddWaveSample(this.m_OutputVal);
+            }
+
+            this.m_AddWaveSampleCounter++;
+
+            this.m_CpuClock++;
+        }
+
+        return retCpuClock;
+    }
 
     // レジスタ 読み出し
     public readRegister4015(): number {
-        // TODO 実装。以下は仮実装居。
-        return 0;
+        let res = 0;
+
+        const square1 = this.m_SquareWaveChannel1.GetStatusBit();
+        res |= square1;
+
+        const square2 = this.m_SquareWaveChannel2.GetStatusBit();
+        res |= (square2 << 1);
+
+        const triangle = this.m_TriangleWaveChannel.GetStatusBit();
+        res |= (triangle << 2);
+
+        const noise = this.m_NoiseChannel.GetStatusBit();
+        res |= (noise << 3);
+
+        // DMC だけは 1bit ではないので DMC 側に更新してもらう
+        res = this.m_DmcChannel.GetStatusBit(res);
+
+        return res;
     }
 
     // 出力値
