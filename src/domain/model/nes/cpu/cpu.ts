@@ -1324,16 +1324,169 @@ export class Cpu {
 
     // ブランチ条件成立時の追加クロックサイクルは考慮しないことに注意すること
     private FetchAddr(mode: AddressingMode): [number, number] {
-        // TODO 実装。
+        const m_pCpuBus = this.m_pCpuBus;
 
-        // TODO const* pOutAddr, const* pOutAdditionalCyc 返す
+        // アドレスじゃないはずの人らが来てたらプログラミングミスなので assert しとく
+        if ([AddressingMode.Implied, AddressingMode.Immediate, AddressingMode.Accumulator].includes(mode)) throw new Error('Invalid Addressing Mode.');
+
+        let pOutAddr = 0;
+        let pOutAdditionalCyc = 0;
+
+        // PC は命令とオペランドのフェッチでは動かさず、命令実行後にまとめて動かす(デバッグログの実装で有利になる……はず)
+        if (mode === AddressingMode.Absolute) {
+            let upper = 0;
+            let lower = 0;
+            lower = m_pCpuBus.readByte(this.PC + 1);
+            upper = m_pCpuBus.readByte(this.PC + 2);
+
+            let addr = 0;
+            addr |= lower;
+            addr |= (upper << 8);
+
+            pOutAddr = addr;
+        }
+        else if (mode == AddressingMode.ZeroPage) {
+            const addr = m_pCpuBus.readByte(this.PC + 1);
+
+            pOutAddr = addr;
+        }
+        else if (mode == AddressingMode.ZeroPageX) {
+            let lower = m_pCpuBus.readByte(this.PC + 1);
+
+            // 上位バイトへの桁上げは無視、なので uint8 のまま加算する
+            lower += this.X;
+            pOutAddr = lower;
+        }
+        else if (mode == AddressingMode.ZeroPageY) {
+            let lower = m_pCpuBus.readByte(this.PC + 1);
+
+            // 上位バイトへの桁上げは無視、なので uint8 のまま加算する
+            lower += this.Y;
+            pOutAddr = lower;
+        }
+        else if (mode == AddressingMode.AbsoluteX) {
+            let upper = 0;
+            let lower = 0;
+            lower = m_pCpuBus.readByte(this.PC + 1);
+            upper = m_pCpuBus.readByte(this.PC + 2);
+
+            let addr = 0;
+            addr |= lower;
+            addr |= (upper << 8);
+
+            let beforeAddr = addr;
+            addr += this.X;
+
+            pOutAddr = addr;
+            // ページクロスで +1 クロック
+            if ((beforeAddr & 0xFF00) != (addr & 0xFF00)) {
+                pOutAdditionalCyc = 1;
+            }
+
+        }
+        else if (mode == AddressingMode.AbsoluteY) {
+            let upper = 0;
+            let lower = 0;
+            lower = m_pCpuBus.readByte(this.PC + 1);
+            upper = m_pCpuBus.readByte(this.PC + 2);
+
+            let addr = 0;
+            addr |= lower;
+            addr |= (upper << 8);
+
+            let beforeAddr = addr;
+            addr += this.Y;
+
+            pOutAddr = addr;
+            // ページクロスで +1 クロック
+            if ((beforeAddr & 0xFF00) != (addr & 0xFF00)) {
+                pOutAdditionalCyc = 1;
+            }
+        }
+        else if (mode == AddressingMode.Relative) {
+            const offset = m_pCpuBus.readByte(this.PC + 1);
+            // 符号拡張 する(若干怪しいので、バグったら疑う(最悪))
+            const signedOffset = offset;
+            // TORIAEZU: フェッチ済としたときの PC を起点にする
+            const signedPC = this.PC + 2;
+
+            const signedAddr = signedPC + signedOffset;
+            // const に収まっていることを確認
+            if (!(signedAddr >= 0 && signedAddr <= 0xFFFF)) throw new Error('Out range signedAddr.');
+            const addr = (signedAddr);
+
+            pOutAddr = addr;
+            // ページクロスで +1 クロック、Relative はブランチ命令で使われるが、ブランチ成立時にはさらに +1 されることに注意する
+            if ((signedPC & 0xFF00) != (addr & 0xFF00)) {
+                pOutAdditionalCyc = 1;
+            }
+        }
+        else if (mode == AddressingMode.IndirectX) {
+            // *(lower + X)
+            let indirectLower = m_pCpuBus.readByte(this.PC + 1);
+            // キャリーは無視 = オーバーフローしても気にしない(符号なし整数のオーバーフローは未定義でないことを確認済み)
+            let lowerAddr = indirectLower + this.X;
+            const upperAddr = lowerAddr + 1;
+            // Indirect なので、FetchAddr 内で1回参照を剥がす
+            const lower = m_pCpuBus.readByte(lowerAddr);
+            const upper = m_pCpuBus.readByte(upperAddr);
+
+            const addr = lower | (upper << 8);
+
+            pOutAddr = addr;
+        }
+        else if (mode == AddressingMode.IndirectY) {
+            // *(lower) + Y
+            // キャリーは無視 = オーバーフローしても気にしない
+            let lowerAddr = m_pCpuBus.readByte(this.PC + 1);
+            const upperAddr = lowerAddr + 1;
+            // Indirect なので、FetchAddr 内で1回参照を剥がす
+            const lower = m_pCpuBus.readByte(lowerAddr);
+            const upper = m_pCpuBus.readByte(upperAddr);
+
+            let addr = lower | (upper << 8);
+            const beforeAddr = addr;
+
+            addr += this.Y;
+
+            pOutAddr = addr;
+            // ページクロスで +1 クロック
+            if ((beforeAddr & 0xFF00) != (addr & 0xFF00)) {
+                pOutAdditionalCyc = 1;
+            }
+        }
+        else if (mode == AddressingMode.Indirect) {
+            // **(addr)
+            const indirectAddr = 0;
+
+            let indirectLower = m_pCpuBus.readByte(this.PC + 1);
+            let indirectUpper = m_pCpuBus.readByte(this.PC + 2);
+
+            // インクリメントにおいて下位バイトからのキャリーを無視するために、下位バイトに加算してからキャストする(ほんまか？？？？？)
+            // 符号なし整数の加算のオーバーフロー時の挙動を期待しているので、未定義かも(TODO: 調べる)
+            const indirectLower2 = indirectLower + 1;
+
+            // Indirect なので、FetchAddr 内で1回参照を剥がす
+            const addrLower = m_pCpuBus.readByte(indirectLower | (indirectUpper << 8));
+            const addrUpper = m_pCpuBus.readByte(indirectLower2 | (indirectUpper << 8));
+
+            const addr = addrLower | (addrUpper << 8);
+            pOutAddr = addr;
+        }
+        else {
+            // unexpected default
+            // abort();
+            throw new Error('unexpected default.');
+        }
+
+        return [pOutAddr, pOutAdditionalCyc];
     }
 
     // アドレッシングモードによってオペランドの参照を適切に剥がして値を返す
     private FetchArg(mode: AddressingMode): [number, number] {
         // TODO 実装。
 
-        // TODO const* pOutAddr, const* pOutAdditionalCyc 返す
+        // TODO constpOutAddr, const* pOutAdditionalCyc 返す
     }
 
 
