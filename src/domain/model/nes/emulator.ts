@@ -51,7 +51,18 @@ export class Emulator {
 
     /** 1フレーム進める。 */
     public StepFrame(): void {
-        // TODO 実装。
+        let finished = false;
+        while (!finished) {
+            // DMA 稼働中は CPU 止まるので、これでつじつまが合う
+            const dmaClk = this.m_CpuBus.runDma(this.m_ClockCount);
+            const add = this.m_Cpu.run();
+            this.m_ClockCount += dmaClk;
+            this.m_ClockCount += add;
+            finished = this.m_Ppu.run(add * 3);
+            // TODO: Apu の DMA が CPU を止めることを考慮する
+            this.m_Apu.run(add);
+            this.m_InstructionCount++;
+        }
     }
 
     /** 1命令進める、1 フレーム完成してたら true が返る。 */

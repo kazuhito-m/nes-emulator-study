@@ -105,7 +105,7 @@ export class Apu {
 
     // CPU クロックを受け取ってその分だけ APU を動かす。 APU クロックでなく CPU クロック分であることに注意する。
     // DMA によって CPU が停止した場合、停止した CPU クロック数を返す
-    public Run(cpuClock: number): number {
+    public run(cpuClock: number): number {
         let retCpuClock = 0;
 
         // cpuClock ぶんだけ APU うごかす
