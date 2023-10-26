@@ -1,4 +1,5 @@
 import { ApuBus } from "./apu-bus";
+import { ApuTable } from "./apu-table";
 import { DmcChannel } from "./dmc-channel";
 import { NoiseChannel } from "./noise-channel";
 import { SequencerMode } from "./sequencer-mode";
@@ -51,8 +52,55 @@ export class Apu {
     }
 
     // レジスタ 書き込み
-    public writeRegister(data: number, addr: number): void {
-        // TODO 実装。
+    public writeRegister(value: number, addr: number): void {
+        // addr で各チャンネルに振り分け
+        if (addr <= 0x4003) {
+            // 矩形波チャンネル1
+            this.m_SquareWaveChannel1.WriteRegister(value, addr);
+        }
+        else if (addr <= 0x4007) {
+            // 矩形波チャンネル2
+            this.m_SquareWaveChannel2.WriteRegister(value, addr);
+        }
+        else if (addr <= 0x400B) {
+            // 三角波
+            this.m_TriangleWaveChannel.WriteRegister(value, addr);
+        }
+        else if (addr <= 0x400F) {
+            // ノイズ
+            this.m_NoiseChannel.WriteRegister(value, addr);
+        }
+        else if (addr <= 0x4013) {
+            // DMC
+            this.m_DmcChannel.WriteRegister(value, addr);
+        }
+        else if (addr == 0x4015) {
+            // 全チャンネルに書き込みを反映
+            this.m_SquareWaveChannel1.On4015Write(value);
+            this.m_SquareWaveChannel2.On4015Write(value);
+            this.m_TriangleWaveChannel.On4015Write(value);
+            this.m_NoiseChannel.On4015Write(value);
+            this.m_DmcChannel.On4015Write(value);
+        }
+        else if (addr == 0x4017) {
+            // 設定値をメンバに反映 & 各チャンネル駆動
+            // value の 7 bit 目が立ってたら 5 step else 4step
+            this.m_SequencerMode = (value & (1 << 7)) == (1 << 7) ? SequencerMode.Mode_5Step : SequencerMode.Mode_4Step;
+            this.m_IrqEnabled = ((value & (1 << 6)) >> 6) === 1;
+
+            this.m_NextSeqPhase = 0;
+            // フレームシーケンサのクロックは CPU クロックで計算する。(half clock を考慮するのをサボるため)
+            this.m_SequencerCounter = ApuTable.ClocksToNextSequence;
+
+            if (this.m_SequencerMode === SequencerMode.Mode_5Step) {
+                this.ClockQuarterFrame();
+                this.ClockHalfFrame();
+            }
+
+            if (!this.m_IrqEnabled) {
+                this.m_IrqPending = false;
+            }
+        }
     }
 
     // CPU クロックを受け取ってその分だけ APU を動かす。 APU クロックでなく CPU クロック分であることに注意する。
@@ -74,7 +122,7 @@ export class Apu {
     }
 
     // DMC 用 DMA Read
-    public DmaReadFromCpu( addr:number): number {
+    public DmaReadFromCpu(addr: number): number {
         // TODO 実装。
     }
 

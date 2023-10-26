@@ -4,6 +4,9 @@
  * コンストラクタでグローバルなテーブル。
  */
 export class ApuTable {
+    // 7457 分周 == [0, 7457) のカウンタをつかう
+    public static readonly ClocksToNextSequence = 7456;
+
     /**
      * コンストラクタでグローバルなテーブルを定義する。
      */
