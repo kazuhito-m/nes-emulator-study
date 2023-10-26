@@ -19,7 +19,7 @@ export class Cpu {
     // CPU BUS 経由でシステムを読み書きする
     private m_pCpuBus: CpuBus;
 
-    constructor(this.PCpuBus: CpuBus) {
+    constructor(pCpuBus: CpuBus) {
         this.m_pCpuBus = pCpuBus;
     }
 
@@ -1327,7 +1327,8 @@ export class Cpu {
         const m_pCpuBus = this.m_pCpuBus;
 
         // アドレスじゃないはずの人らが来てたらプログラミングミスなので assert しとく
-        if ([AddressingMode.Implied, AddressingMode.Immediate, AddressingMode.Accumulator].includes(mode)) throw new Error('Invalid Addressing Mode.');
+        if ([AddressingMode.Implied, AddressingMode.Immediate, AddressingMode.Accumulator].includes(mode))
+            throw new Error('Invalid Addressing Mode.');
 
         let pOutAddr = 0;
         let pOutAdditionalCyc = 0;
@@ -1484,19 +1485,39 @@ export class Cpu {
 
     // アドレッシングモードによってオペランドの参照を適切に剥がして値を返す
     private FetchArg(mode: AddressingMode): [number, number] {
-        // TODO 実装。
+        let pOutValue = 0;
+        let pOutAdditionalCyc = 0;
 
-        // TODO constpOutAddr, const* pOutAdditionalCyc 返す
+        // 引数を持たないアドレッシングモードで呼ばれたらプログラミングミスなので assert しとく
+        if (mode === AddressingMode.Implied) throw new Error('Invalid Addressing Mode.');
+
+        if (mode == AddressingMode.Accumulator) {
+            pOutValue = this.A;
+        }
+        else if (mode == AddressingMode.Immediate) {
+            // Immediate は PC + 1 から素直に読む
+            pOutValue = this.m_pCpuBus.readByte(this.PC + 1);
+        }
+        else {
+            // 他はアドレスがオペランドになってるはずなので、アドレスを持ってきて1回参照を剥がす(Indirect は2回参照を剥がす必要があるが、1回は FetchAddr 側で剥がしている)
+            const [addr, cyc] = this.FetchAddr(mode);
+            // FIXME この代入を行っているかは怪しい…元ロジックとC++の言語仕様を確認スべし。
+            pOutAdditionalCyc = cyc;
+            pOutValue = this.m_pCpuBus.readByte(addr);
+        }
+        return [pOutValue, pOutAdditionalCyc];
     }
 
 
     // スタック 操作
     private PushStack(data: number): void {
-        // TODO 実装。
+        this.m_pCpuBus.writeByte(this.SP | (1 << 8), data);
+        this.SP--;
     }
 
     private PopStack(): number {
-        // TODO 実装。
+        this.SP++;
+        return this.m_pCpuBus.readByte(this.SP | (1 << 8));
     }
 
     // ---- utility methods ----
@@ -1504,7 +1525,7 @@ export class Cpu {
     // M, N を 8bit符号付き整数、 C をキャリーフラグとしたとき、N + M + C がオーバーフローするか？
     // 符号付き整数の加減算オーバーフロー判定だが、引数は uint8_tであることに注意する(符号付き整数のオーバーフローは未定義)
     private isSignedOverFlowed(N: number, M: number, C: boolean): boolean {
-        const res = N + M + C;
+        const res = N + M + (C ? 1 : 0);
         return ((M ^ res) & (N ^ res) & 0x80) == 0x80;
     }
 
