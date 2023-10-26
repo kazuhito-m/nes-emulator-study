@@ -1,7 +1,7 @@
-import { AddressingMode } from "./cpu/addresing-mode";
-import { CpuInfo } from "./cpu/cpu-info";
-import { Instruction } from "./cpu/instruction";
-import { Opcode } from "./cpu/opcode";
+import { AddressingMode } from "../nes/cpu/addresing-mode";
+import { CpuInfo } from "../nes/cpu/cpu-info";
+import { Instruction } from "../nes/cpu/instruction";
+import { Opcode } from "../nes/cpu/opcode";
 
 export class EmuInfo {
 	constructor(

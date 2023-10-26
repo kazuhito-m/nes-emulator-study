@@ -1,18 +1,18 @@
-import { Apu } from "./apu/apu";
-import { ApuBus } from "./apu/apu-bus";
+import { Apu } from "../nes/apu/apu";
+import { ApuBus } from "../nes/apu/apu-bus";
 import { Color } from "./color";
 import { ColorConvertTable } from "./color-convert-table";
-import { Constants } from "./constants";
-import { initializeTwoDimensionalArray } from "./cpp-functions";
-import { Cpu } from "./cpu/cpu";
-import { CpuBus } from "./cpu/cpu-bus";
-import { InterruptType } from "./cpu/interrupt-type";
+import { Constants } from "../nes/constants";
+import { initializeTwoDimensionalArray } from "../nes/cpp-functions";
+import { Cpu } from "../nes/cpu/cpu";
+import { CpuBus } from "../nes/cpu/cpu-bus";
+import { InterruptType } from "../nes/cpu/interrupt-type";
 import { EmuInfo } from "./emu-info";
-import { PadButton, PadId } from "./input/pad/pad";
-import { Ppu } from "./ppu/ppu";
-import { PpuBus } from "./ppu/ppu-bus";
-import { PpuSystem } from "./ppu/ppu-system";
-import { System } from "./system";
+import { PadButton, PadId } from "../nes/input/pad/pad";
+import { Ppu } from "../nes/ppu/ppu";
+import { PpuBus } from "../nes/ppu/ppu-bus";
+import { PpuSystem } from "../nes/ppu/ppu-system";
+import { System } from "../nes/system";
 
 export class Emulator {
 
