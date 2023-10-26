@@ -51,7 +51,7 @@ export class Emulator {
     }
 
     public GetColor(color: number): Color {
-		return this.colorConvertTable.get(color);
+        return this.colorConvertTable.get(color);
     }
 
     /** 1フレーム進める。 */
@@ -105,17 +105,23 @@ export class Emulator {
 
     /** CPU と PPU の情報を取得。 */
     public GetEmuInfo(pOutInfo: EmuInfo): void {
-        // TODO 実装。
+        pOutInfo.cpuInfo = this.m_Cpu.getCpuInfoForDebug();
+
+        const [lines, cycles] = this.m_Ppu.getPpuInfo();
+        pOutInfo.PpuLines = lines;
+        pOutInfo.PpuCycles = cycles;
+
+        pOutInfo.CpuCycles = this.m_ClockCount;
+        pOutInfo.CpuInstructionCount = this.m_InstructionCount;
     }
 
 
     /** Pad のボタン押す。 */
     public PushButton(id: PadId, button: PadButton): void {
-        // TODO 実装。
+        this.m_System.pushButton(id, button);
     }
 
     public ReleaseButton(id: PadId, button: PadButton): void {
-        // TODO 実装。
+        this.m_System.releaseButton(id, button);
     }
-
 }
