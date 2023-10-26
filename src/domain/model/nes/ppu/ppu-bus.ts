@@ -1,5 +1,7 @@
+import { Mirroring } from "../cassette/cassette";
 import { Constants } from "../constants";
-import { Cpu, InterruptType } from "../cpu/cpu";
+import { Cpu } from "../cpu/cpu";
+import { InterruptType } from "../cpu/interrupt-type";
 import { System } from "../system"
 import { PpuSystem } from "./ppu-system";
 
@@ -86,11 +88,30 @@ export class PpuBus {
     // 描画終了のタイミングに合わせて NMI を入れる
     public generateCpuInterrupt(): void {
         if (!this.m_IsInitialized) throw new Error('PPU Bus not initialized.')
-        this.m_pCpu.interrupt(InterruptType.IRQ);
+        this.m_pCpu?.interrupt(InterruptType.IRQ);
     }
 
     private getMirroredAddr(addr: number): number {
+        // nametable 以外の範囲のアドレスが渡されたらプログラミングミス
+        if (!(0x2000 <= addr && addr < 0x3000)) throw new Error('Out range Address of nametable.');
 
+        const mirroring = this.m_pSystem.m_Cassette.getMirroring();
+        if (mirroring === Mirroring.Horizontal) {
+            // 水平ミラー: [0x2000, 0x2400) が [0x2400, 0x2800) に、[0x2800, 0x2c00) が[0x2c00, 0x3000) にミラーされる
+            // ミラー範囲だったら雑に引き算をするぜ
+            if ((0x2400 <= addr && addr < 0x2800) ||
+                (0x2C00 <= addr && addr < 0x3000)) {
+                addr -= 0x400;
+            }
+        }
+        else if (mirroring === Mirroring.Vertical) {
+            // 垂直ミラー: [0x2000, 0x2800) が [0x2800, 0x3000) にミラーされる
+            if (0x2800 <= addr) {
+                addr -= 0x800;
+            }
+        }
+
+        return addr;
     }
 
     private getPaletteMirrorAddr(addr: number): number {
