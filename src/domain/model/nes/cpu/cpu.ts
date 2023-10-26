@@ -34,16 +34,16 @@ export class Cpu {
             case Opcode.ADC:
                 {
                     // オペランド フェッチ
-                    const [operand, additionalCyc] = this.FetchArg(inst.m_AddressingMode);
+                    const [operand, additionalCyc] = this.fetchArg(inst.m_AddressingMode);
 
-                    const calc = this.A + operand + (this.GetCarryFlag() ? 1 : 0);
+                    const calc = this.A + operand + (this.getCarryFlag() ? 1 : 0);
                     const res = calc;
 
                     this.SetCarryFlag(calc > 0xff);
-                    this.SetZeroFlag(res == 0);
-                    this.SetNegativeFlag((res & 0x80) == 0x80);
+                    this.SetZeroFlag(res === 0);
+                    this.setNegativeFlag((res & 0x80) === 0x80);
                     // http://forums.nesdev.com/viewtopic.php?t=6331
-                    this.SetOverflowFlag(this.isSignedOverFlowed(this.A, operand, this.GetCarryFlag()));
+                    this.setOverflowFlag(this.isSignedOverFlowed(this.A, operand, this.getCarryFlag()));
 
                     this.A = res;
                     // PC 進める
@@ -52,38 +52,38 @@ export class Cpu {
                 }
             case Opcode.AND:
                 {
-                    const [arg, additionalCyc] = this.FetchArg(inst.m_AddressingMode);
+                    const [arg, additionalCyc] = this.fetchArg(inst.m_AddressingMode);
 
                     const res = this.A & arg;
-                    const zeroFlag = res == 0;
-                    const negativeFlag = (res & 0x80) == 0x80;
+                    const zeroFlag = res === 0;
+                    const negativeFlag = (res & 0x80) === 0x80;
 
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
                     this.A = res;
                     this.PC += inst.m_Bytes;
                     return inst.m_Cycles + additionalCyc;
                 }
             case Opcode.ASL:
                 {
-                    const [arg, additionalCyc] = this.FetchArg(inst.m_AddressingMode);
+                    const [arg, additionalCyc] = this.fetchArg(inst.m_AddressingMode);
 
                     const res = arg << 1;
 
                     // MSB が立ってる時に左シフトしたら carry になる
-                    const carryFlag = (arg & 0x80) == 0x80;
-                    const zeroFlag = (res == 0);
-                    const negativeFlag = (res & 0x80) == 0x80;
+                    const carryFlag = (arg & 0x80) === 0x80;
+                    const zeroFlag = (res === 0);
+                    const negativeFlag = (res & 0x80) === 0x80;
 
                     this.SetCarryFlag(carryFlag);
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
 
-                    if (inst.m_AddressingMode == AddressingMode.Accumulator) {
+                    if (inst.m_AddressingMode === AddressingMode.Accumulator) {
                         this.A = res;
                     }
                     else {
-                        const [addr, dummy] = this.FetchAddr(inst.m_AddressingMode);
+                        const [addr, dummy] = this.fetchAddr(inst.m_AddressingMode);
                         this.m_pCpuBus.writeByte(addr, res);
                     }
 
@@ -92,10 +92,10 @@ export class Cpu {
                 }
             case Opcode.BCC:
                 {
-                    const [addr, additionalCyc] = this.FetchAddr(inst.m_AddressingMode);
+                    const [addr, additionalCyc] = this.fetchAddr(inst.m_AddressingMode);
 
                     // キャリーフラグが立ってなかったら分岐
-                    if (!this.GetCarryFlag()) {
+                    if (!this.getCarryFlag()) {
                         this.PC = addr;
                         // 分岐成立時に + 1 クロックサイクル
                         return inst.m_Cycles + additionalCyc + 1;
@@ -108,9 +108,9 @@ export class Cpu {
                 }
             case Opcode.BCS:
                 {
-                    const [addr, additionalCyc] = this.FetchAddr(inst.m_AddressingMode);
+                    const [addr, additionalCyc] = this.fetchAddr(inst.m_AddressingMode);
 
-                    if (this.GetCarryFlag()) {
+                    if (this.getCarryFlag()) {
                         this.PC = addr;
                         return inst.m_Cycles + additionalCyc + 1;
                     }
@@ -121,9 +121,9 @@ export class Cpu {
                 }
             case Opcode.BEQ:
                 {
-                    const [addr, additionalCyc] = this.FetchAddr(inst.m_AddressingMode);
+                    const [addr, additionalCyc] = this.fetchAddr(inst.m_AddressingMode);
 
-                    if (this.GetZeroFlag()) {
+                    if (this.getZeroFlag()) {
                         this.PC = addr;
                         return inst.m_Cycles + additionalCyc + 1;
                     }
@@ -135,15 +135,15 @@ export class Cpu {
                 }
             case Opcode.BIT:
                 {
-                    const [arg, additionalCyc] = this.FetchArg(inst.m_AddressingMode);
+                    const [arg, additionalCyc] = this.fetchArg(inst.m_AddressingMode);
 
-                    const negativeFlag = (arg & 0x80) == 0x80;
-                    const overflowFlag = (arg & 0x40) == 0x40;
+                    const negativeFlag = (arg & 0x80) === 0x80;
+                    const overflowFlag = (arg & 0x40) === 0x40;
                     // Set if the result if the AND is zero(？？？？？？？)
-                    const zeroFlag = (this.A & arg) == 0;
+                    const zeroFlag = (this.A & arg) === 0;
 
-                    this.SetNegativeFlag(negativeFlag);
-                    this.SetOverflowFlag(overflowFlag);
+                    this.setNegativeFlag(negativeFlag);
+                    this.setOverflowFlag(overflowFlag);
                     this.SetZeroFlag(zeroFlag);
 
                     this.PC += inst.m_Bytes;
@@ -151,9 +151,9 @@ export class Cpu {
                 }
             case Opcode.BMI:
                 {
-                    const [addr, additionalCyc] = this.FetchAddr(inst.m_AddressingMode);
+                    const [addr, additionalCyc] = this.fetchAddr(inst.m_AddressingMode);
 
-                    if (this.GetNegativeFlag()) {
+                    if (this.getNegativeFlag()) {
                         this.PC = addr;
                         return inst.m_Cycles + additionalCyc + 1;
                     } else {
@@ -164,9 +164,9 @@ export class Cpu {
                 }
             case Opcode.BNE:
                 {
-                    const [addr, additionalCyc] = this.FetchAddr(inst.m_AddressingMode);
+                    const [addr, additionalCyc] = this.fetchAddr(inst.m_AddressingMode);
 
-                    if (!this.GetZeroFlag()) {
+                    if (!this.getZeroFlag()) {
                         this.PC = addr;
                         return inst.m_Cycles + additionalCyc + 1;
                     }
@@ -178,9 +178,9 @@ export class Cpu {
                 }
             case Opcode.BPL:
                 {
-                    const [addr, additionalCyc] = this.FetchAddr(inst.m_AddressingMode);
+                    const [addr, additionalCyc] = this.fetchAddr(inst.m_AddressingMode);
 
-                    if (!this.GetNegativeFlag()) {
+                    if (!this.getNegativeFlag()) {
                         this.PC = addr;
                         return inst.m_Cycles + additionalCyc + 1;
                     }
@@ -192,15 +192,15 @@ export class Cpu {
                 }
             case Opcode.BRK:
                 {
-                    this.SetBreakFlag(true);
+                    this.setBreakFlag(true);
                     this.interrupt(InterruptType.BRK);
                     return inst.m_Cycles;
                 }
             case Opcode.BVC:
                 {
-                    const [addr, additionalCyc] = this.FetchAddr(inst.m_AddressingMode);
+                    const [addr, additionalCyc] = this.fetchAddr(inst.m_AddressingMode);
 
-                    if (!this.GetOverflowFlag()) {
+                    if (!this.getOverflowFlag()) {
                         this.PC = addr;
                         return inst.m_Cycles + additionalCyc + 1;
                     }
@@ -212,9 +212,9 @@ export class Cpu {
                 }
             case Opcode.BVS:
                 {
-                    const [addr, additionalCyc] = this.FetchAddr(inst.m_AddressingMode);
+                    const [addr, additionalCyc] = this.fetchAddr(inst.m_AddressingMode);
 
-                    if (this.GetOverflowFlag()) {
+                    if (this.getOverflowFlag()) {
                         this.PC = addr;
                         return inst.m_Cycles + additionalCyc + 1;
                     }
@@ -232,85 +232,85 @@ export class Cpu {
                 }
             case Opcode.CLD:
                 {
-                    this.SetDecimalFlag(false);
+                    this.setDecimalFlag(false);
                     this.PC += inst.m_Bytes;
                     return inst.m_Cycles;
                 }
             case Opcode.CLI:
                 {
-                    this.SetInterruptFlag(false);
+                    this.setInterruptFlag(false);
                     this.PC += inst.m_Bytes;
                     return inst.m_Cycles;
                 }
             case Opcode.CLV:
                 {
-                    this.SetOverflowFlag(false);
+                    this.setOverflowFlag(false);
                     this.PC += inst.m_Bytes;
                     return inst.m_Cycles;
                 }
             case Opcode.CMP:
                 {
-                    const [arg, additionalCyc] = this.FetchAddr(inst.m_AddressingMode);
+                    const [arg, additionalCyc] = this.fetchAddr(inst.m_AddressingMode);
 
                     const res = this.A - arg;
 
                     const carryFlag = this.A >= arg;
-                    const zeroFlag = res == 0;
-                    const negativeFlag = (res & 0x80) == 0x80;
+                    const zeroFlag = res === 0;
+                    const negativeFlag = (res & 0x80) === 0x80;
 
                     this.SetCarryFlag(carryFlag);
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
 
                     this.PC += inst.m_Bytes;
                     return inst.m_Cycles + additionalCyc;
                 }
             case Opcode.CPX:
                 {
-                    const [arg, additionalCyc] = this.FetchAddr(inst.m_AddressingMode);
+                    const [arg, additionalCyc] = this.fetchAddr(inst.m_AddressingMode);
 
                     const res = this.X - arg;
 
                     const carryFlag = this.X >= arg;
-                    const zeroFlag = res == 0;
-                    const negativeFlag = (res & 0x80) == 0x80;
+                    const zeroFlag = res === 0;
+                    const negativeFlag = (res & 0x80) === 0x80;
 
                     this.SetCarryFlag(carryFlag);
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
 
                     this.PC += inst.m_Bytes;
                     return inst.m_Cycles + additionalCyc;
                 }
             case Opcode.CPY:
                 {
-                    const [arg, additionalCyc] = this.FetchAddr(inst.m_AddressingMode);
+                    const [arg, additionalCyc] = this.fetchAddr(inst.m_AddressingMode);
 
                     const res = this.Y - arg;
 
                     const carryFlag = this.Y >= arg;
-                    const zeroFlag = res == 0;
-                    const negativeFlag = (res & 0x80) == 0x80;
+                    const zeroFlag = res === 0;
+                    const negativeFlag = (res & 0x80) === 0x80;
 
                     this.SetCarryFlag(carryFlag);
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
 
                     this.PC += inst.m_Bytes;
                     return inst.m_Cycles + additionalCyc;
                 }
             case Opcode.DEC:
                 {
-                    const [addr, additionalCyc] = this.FetchAddr(inst.m_AddressingMode);
-                    const [arg, dummy] = this.FetchArg(inst.m_AddressingMode);
+                    const [addr, additionalCyc] = this.fetchAddr(inst.m_AddressingMode);
+                    const [arg, dummy] = this.fetchArg(inst.m_AddressingMode);
 
                     const res = arg - 1;
 
-                    const zeroFlag = res == 0;
-                    const negativeFlag = (res & 0x80) == 0x80;
+                    const zeroFlag = res === 0;
+                    const negativeFlag = (res & 0x80) === 0x80;
 
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
                     this.m_pCpuBus.writeByte(addr, res);
 
                     this.PC += inst.m_Bytes;
@@ -321,11 +321,11 @@ export class Cpu {
                     // implied のみ
                     const res = this.X - 1;
 
-                    const zeroFlag = res == 0;
-                    const negativeFlag = (res & 0x80) == 0x80;
+                    const zeroFlag = res === 0;
+                    const negativeFlag = (res & 0x80) === 0x80;
 
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
                     this.X = res;
 
                     this.PC += inst.m_Bytes;
@@ -336,11 +336,11 @@ export class Cpu {
                     // implied のみ
                     const res = this.Y - 1;
 
-                    const zeroFlag = res == 0;
-                    const negativeFlag = (res & 0x80) == 0x80;
+                    const zeroFlag = res === 0;
+                    const negativeFlag = (res & 0x80) === 0x80;
 
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
                     this.Y = res;
 
                     this.PC += inst.m_Bytes;
@@ -348,14 +348,14 @@ export class Cpu {
                 }
             case Opcode.EOR:
                 {
-                    const [arg, additionalCyc] = this.FetchArg(inst.m_AddressingMode);
+                    const [arg, additionalCyc] = this.fetchArg(inst.m_AddressingMode);
 
                     const res = this.A ^ arg;
-                    const zeroFlag = res == 0;
-                    const negativeFlag = (res & 0x80) == 0x80;
+                    const zeroFlag = res === 0;
+                    const negativeFlag = (res & 0x80) === 0x80;
 
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
 
                     this.A = res;
 
@@ -364,16 +364,16 @@ export class Cpu {
                 }
             case Opcode.INC:
                 {
-                    const [addr, dummy] = this.FetchAddr(inst.m_AddressingMode);
-                    const [arg, additionalCyc] = this.FetchArg(inst.m_AddressingMode);
+                    const [addr, dummy] = this.fetchAddr(inst.m_AddressingMode);
+                    const [arg, additionalCyc] = this.fetchArg(inst.m_AddressingMode);
 
                     const res = arg + 1;
 
-                    const zeroFlag = res == 0;
-                    const negativeFlag = (res & 0x80) == 0x80;
+                    const zeroFlag = res === 0;
+                    const negativeFlag = (res & 0x80) === 0x80;
 
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
                     this.m_pCpuBus.writeByte(addr, res);
 
                     this.PC += inst.m_Bytes;
@@ -384,11 +384,11 @@ export class Cpu {
                     // implied のみ
                     const res = this.X + 1;
 
-                    const zeroFlag = res == 0;
-                    const negativeFlag = (res & 0x80) == 0x80;
+                    const zeroFlag = res === 0;
+                    const negativeFlag = (res & 0x80) === 0x80;
 
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
                     this.X = res;
 
                     this.PC += inst.m_Bytes;
@@ -399,11 +399,11 @@ export class Cpu {
                     // implied のみ
                     const res = this.Y + 1;
 
-                    const zeroFlag = res == 0;
-                    const negativeFlag = (res & 0x80) == 0x80;
+                    const zeroFlag = res === 0;
+                    const negativeFlag = (res & 0x80) === 0x80;
 
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
                     this.Y = res;
 
                     this.PC += inst.m_Bytes;
@@ -411,7 +411,7 @@ export class Cpu {
                 }
             case Opcode.JMP:
                 {
-                    const [addr, additionalCyc] = this.FetchAddr(inst.m_AddressingMode);
+                    const [addr, additionalCyc] = this.fetchAddr(inst.m_AddressingMode);
                     if (additionalCyc !== 0) throw new Error('CYC non ZERO.');
 
                     this.PC = addr;
@@ -419,28 +419,28 @@ export class Cpu {
                 }
             case Opcode.JSR:
                 {
-                    const [addr, additionalCyc] = this.FetchAddr(inst.m_AddressingMode);
+                    const [addr, additionalCyc] = this.fetchAddr(inst.m_AddressingMode);
                     if (additionalCyc !== 0) throw new Error('CYC non ZERO.');
 
                     // リターンアドレスは PC + 3 だが、それから 1 を引いたものを stack にプッシュする(そういう仕様)
                     const retAddr = this.PC + 2;
 
                     // upper.lower の順に push
-                    this.PushStack(retAddr >> 8);
-                    this.PushStack(retAddr & 0xFF);
+                    this.pushStack(retAddr >> 8);
+                    this.pushStack(retAddr & 0xFF);
 
                     this.PC = addr;
                     return inst.m_Cycles + additionalCyc;
                 }
             case Opcode.LDA:
                 {
-                    const [arg, additionalCyc] = this.FetchArg(inst.m_AddressingMode);
+                    const [arg, additionalCyc] = this.fetchArg(inst.m_AddressingMode);
 
-                    const zeroFlag = arg == 0;
-                    const negativeFlag = (arg & 0x80) == 0x80;
+                    const zeroFlag = arg === 0;
+                    const negativeFlag = (arg & 0x80) === 0x80;
 
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
                     this.A = arg;
 
                     this.PC += inst.m_Bytes;
@@ -448,26 +448,26 @@ export class Cpu {
                 }
             case Opcode.LDX:
                 {
-                    const [arg, additionalCyc] = this.FetchArg(inst.m_AddressingMode);
+                    const [arg, additionalCyc] = this.fetchArg(inst.m_AddressingMode);
 
-                    const zeroFlag = arg == 0;
-                    const negativeFlag = (arg & 0x80) == 0x80;
+                    const zeroFlag = arg === 0;
+                    const negativeFlag = (arg & 0x80) === 0x80;
 
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
 
                     this.PC += inst.m_Bytes;
                     return inst.m_Cycles + additionalCyc;
                 }
             case Opcode.LDY:
                 {
-                    const [arg, additionalCyc] = this.FetchArg(inst.m_AddressingMode);
+                    const [arg, additionalCyc] = this.fetchArg(inst.m_AddressingMode);
 
-                    const zeroFlag = arg == 0;
-                    const negativeFlag = (arg & 0x80) == 0x80;
+                    const zeroFlag = arg === 0;
+                    const negativeFlag = (arg & 0x80) === 0x80;
 
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
                     this.Y = arg;
 
                     this.PC += inst.m_Bytes;
@@ -477,22 +477,22 @@ export class Cpu {
                 {
                     let addr = 0;
                     if (inst.m_AddressingMode != AddressingMode.Accumulator) {
-                        const [fetchdAddr, dummy] = this.FetchAddr(inst.m_AddressingMode);
+                        const [fetchdAddr, dummy] = this.fetchAddr(inst.m_AddressingMode);
                         addr = fetchdAddr;
                     }
-                    const [arg, additionalCyc] = this.FetchArg(inst.m_AddressingMode);
+                    const [arg, additionalCyc] = this.fetchArg(inst.m_AddressingMode);
 
                     const res = arg >> 1;
 
-                    const carryFlag = (arg & 1) == 1;
-                    const zeroFlag = res == 0;
-                    const negativeFlag = (res & 0x80) == 0x80;
+                    const carryFlag = (arg & 1) === 1;
+                    const zeroFlag = res === 0;
+                    const negativeFlag = (res & 0x80) === 0x80;
 
                     this.SetCarryFlag(carryFlag);
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
 
-                    if (inst.m_AddressingMode == AddressingMode.Accumulator) {
+                    if (inst.m_AddressingMode === AddressingMode.Accumulator) {
                         this.A = res;
                     } else {
                         this.m_pCpuBus.writeByte(addr, res);
@@ -508,15 +508,15 @@ export class Cpu {
                 }
             case Opcode.ORA:
                 {
-                    const [arg, additionalCyc] = this.FetchArg(inst.m_AddressingMode);
+                    const [arg, additionalCyc] = this.fetchArg(inst.m_AddressingMode);
 
                     const res = this.A | arg;
 
-                    const zeroFlag = res == 0;
+                    const zeroFlag = res === 0;
                     const negativeFlag = (res & 0x80) & res;
 
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag !== 0);
+                    this.setNegativeFlag(negativeFlag !== 0);
 
                     this.A = res;
 
@@ -525,26 +525,26 @@ export class Cpu {
                 }
             case Opcode.PHA:
                 {
-                    this.PushStack(this.A);
+                    this.pushStack(this.A);
                     this.PC += inst.m_Bytes;
                     return inst.m_Cycles;
                 }
             case Opcode.PHP:
                 {
                     // http://wiki.nesdev.com/w/index.php/Status_flags: P の 4bit 目と 5bit 目を立ててスタックにプッシュ
-                    this.PushStack(this.P | Constants.B_FLAG_MASK);
+                    this.pushStack(this.P | Constants.B_FLAG_MASK);
                     this.PC += inst.m_Bytes;
                     return inst.m_Cycles;
                 }
             case Opcode.PLA:
                 {
-                    const res = this.PopStack();
+                    const res = this.popStack();
 
-                    const zeroFlag = res == 0;
-                    const negativeFlag = (res & 0x80) == 0x80;
+                    const zeroFlag = res === 0;
+                    const negativeFlag = (res & 0x80) === 0x80;
 
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
                     this.A = res;
 
                     this.PC += inst.m_Bytes;
@@ -552,7 +552,7 @@ export class Cpu {
                 }
             case Opcode.PLP:
                 {
-                    const res = this.PopStack();
+                    const res = this.popStack();
 
                     // http://wiki.nesdev.com/w/index.php/Status_flags: Pの 4bit 目と 5bit 目は更新しない
                     this.P = (res & ~Constants.B_FLAG_MASK) | (this.P & Constants.B_FLAG_MASK);
@@ -564,23 +564,23 @@ export class Cpu {
                 {
                     let addr = 0;
                     if (inst.m_AddressingMode != AddressingMode.Accumulator) {
-                        const [fetchdAddr, dummy] = this.FetchAddr(inst.m_AddressingMode);
+                        const [fetchdAddr, dummy] = this.fetchAddr(inst.m_AddressingMode);
                         addr = fetchdAddr;
                     }
-                    const [arg, additionalCyc] = this.FetchArg(inst.m_AddressingMode);
+                    const [arg, additionalCyc] = this.fetchArg(inst.m_AddressingMode);
 
                     let res = arg << 1;
-                    res |= this.GetCarryFlag() ? 1 : 0;
+                    res |= this.getCarryFlag() ? 1 : 0;
 
-                    const carryFlag = (arg & 0x80) == 0x80;
-                    const zeroFlag = res == 0;
-                    const negativeFlag = (res & 0x80) == 0x80;
+                    const carryFlag = (arg & 0x80) === 0x80;
+                    const zeroFlag = res === 0;
+                    const negativeFlag = (res & 0x80) === 0x80;
 
                     this.SetCarryFlag(carryFlag);
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
 
-                    if (inst.m_AddressingMode == AddressingMode.Accumulator) {
+                    if (inst.m_AddressingMode === AddressingMode.Accumulator) {
                         this.A = res;
                     } else {
                         this.m_pCpuBus.writeByte(addr, res);
@@ -593,23 +593,23 @@ export class Cpu {
                 {
                     let addr = 0;;
                     if (inst.m_AddressingMode != AddressingMode.Accumulator) {
-                        const [fetchdAddr, dummy] = this.FetchAddr(inst.m_AddressingMode);
+                        const [fetchdAddr, dummy] = this.fetchAddr(inst.m_AddressingMode);
                         addr = fetchdAddr;
                     }
-                    const [arg, additionalCyc] = this.FetchArg(inst.m_AddressingMode);
+                    const [arg, additionalCyc] = this.fetchArg(inst.m_AddressingMode);
 
                     let res = arg >> 1;
-                    res |= this.GetCarryFlag() ? 0x80 : 0;
+                    res |= this.getCarryFlag() ? 0x80 : 0;
 
-                    const carryFlag = (arg & 1) == 1;
-                    const zeroFlag = res == 0;
-                    const negativeFlag = (res & 0x80) == 0x80;
+                    const carryFlag = (arg & 1) === 1;
+                    const zeroFlag = res === 0;
+                    const negativeFlag = (res & 0x80) === 0x80;
 
                     this.SetCarryFlag(carryFlag);
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
 
-                    if (inst.m_AddressingMode == AddressingMode.Accumulator) {
+                    if (inst.m_AddressingMode === AddressingMode.Accumulator) {
                         this.A = res;
                     }
                     else {
@@ -621,21 +621,21 @@ export class Cpu {
                 }
             case Opcode.RTI:
                 {
-                    const res = this.PopStack();
+                    const res = this.popStack();
 
                     // http://wiki.nesdev.com/w/index.php/Status_flags: Pの 4bit 目と 5bit 目は更新しない
                     this.P = (res & ~Constants.B_FLAG_MASK) | (this.P & Constants.B_FLAG_MASK);
 
-                    const lower = this.PopStack();
-                    const upper = this.PopStack();
+                    const lower = this.popStack();
+                    const upper = this.popStack();
                     this.PC = lower | (upper << 8);
 
                     return inst.m_Cycles;
                 }
             case Opcode.RTS:
                 {
-                    const lower = this.PopStack();
-                    const upper = this.PopStack();
+                    const lower = this.popStack();
+                    const upper = this.popStack();
                     this.PC = lower | (upper << 8);
 
                     // JSR でスタックにプッシュされるアドレスは JSR の最後のアドレスで、RTS 側でインクリメントされる
@@ -644,26 +644,26 @@ export class Cpu {
                 }
             case Opcode.SBC:
                 {
-                    let [arg, additionalCyc] = this.FetchArg(inst.m_AddressingMode);
+                    let [arg, additionalCyc] = this.fetchArg(inst.m_AddressingMode);
 
                     // 足し算に変換
                     // http://www.righto.com/2012/12/the-6502-overflow-flag-explained.html#:~:text=The%20definition%20of%20the%206502,fit%20into%20a%20signed%20byte.&text=For%20each%20set%20of%20input,and%20the%20overflow%20bit%20V.
-                    // A - arg - borrow == A + ~arg + carry
+                    // A - arg - borrow === A + ~arg + carry
 
                     arg = ~arg;
 
-                    const calc = this.A + arg + (this.GetCarryFlag() ? 1 : 0);
+                    const calc = this.A + arg + (this.getCarryFlag() ? 1 : 0);
                     const res = calc;
 
                     // 足し算に変換 したので、足し算と同じようにフラグ計算可能
-                    const overflowFlag = this.isSignedOverFlowed(this.A, arg, this.GetCarryFlag());
+                    const overflowFlag = this.isSignedOverFlowed(this.A, arg, this.getCarryFlag());
                     const carryFlag = calc > 0xff;
-                    const negativeFlag = (res & 0x80) == 0x80;
-                    const zeroFlag = res == 0;
+                    const negativeFlag = (res & 0x80) === 0x80;
+                    const zeroFlag = res === 0;
 
-                    this.SetOverflowFlag(overflowFlag);
+                    this.setOverflowFlag(overflowFlag);
                     this.SetCarryFlag(carryFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
                     this.SetZeroFlag(zeroFlag);
 
                     this.A = res;
@@ -678,19 +678,19 @@ export class Cpu {
                 }
             case Opcode.SED:
                 {
-                    this.SetDecimalFlag(true);
+                    this.setDecimalFlag(true);
                     this.PC += inst.m_Bytes;
                     return inst.m_Cycles;
                 }
             case Opcode.SEI:
                 {
-                    this.SetInterruptFlag(true);
+                    this.setInterruptFlag(true);
                     this.PC += inst.m_Bytes;
                     return inst.m_Cycles;
                 }
             case Opcode.STA:
                 {
-                    const [addr, additionalCyc] = this.FetchAddr(inst.m_AddressingMode);
+                    const [addr, additionalCyc] = this.fetchAddr(inst.m_AddressingMode);
 
                     this.m_pCpuBus.writeByte(addr, this.A);
                     this.PC += inst.m_Bytes;
@@ -698,7 +698,7 @@ export class Cpu {
                 }
             case Opcode.STX:
                 {
-                    const [addr, additionalCyc] = this.FetchAddr(inst.m_AddressingMode);
+                    const [addr, additionalCyc] = this.fetchAddr(inst.m_AddressingMode);
 
                     this.m_pCpuBus.writeByte(addr, this.X);
                     this.PC += inst.m_Bytes;
@@ -706,7 +706,7 @@ export class Cpu {
                 }
             case Opcode.STY:
                 {
-                    const [addr, additionalCyc] = this.FetchAddr(inst.m_AddressingMode);
+                    const [addr, additionalCyc] = this.fetchAddr(inst.m_AddressingMode);
 
                     this.m_pCpuBus.writeByte(addr, this.Y);
                     this.PC += inst.m_Bytes;
@@ -720,20 +720,20 @@ export class Cpu {
                     this.X = this.A;
 
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
 
                     this.PC += inst.m_Bytes;
                     return inst.m_Cycles;
                 }
             case Opcode.TAY:
                 {
-                    const zeroFlag = this.A == 0;
-                    const negativeFlag = (this.A & 0x80) == 0x80;
+                    const zeroFlag = this.A === 0;
+                    const negativeFlag = (this.A & 0x80) === 0x80;
 
                     this.Y = this.A;
 
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
 
                     this.PC += inst.m_Bytes;
                     return inst.m_Cycles;
@@ -742,13 +742,13 @@ export class Cpu {
                 {
                     const res = (this.SP & 0xFF);
 
-                    const zeroFlag = res == 0;
-                    const negativeFlag = (res & 0x80) == 0x80;
+                    const zeroFlag = res === 0;
+                    const negativeFlag = (res & 0x80) === 0x80;
 
                     this.X = res;
 
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
 
                     this.PC += inst.m_Bytes;
                     return inst.m_Cycles;
@@ -756,12 +756,12 @@ export class Cpu {
             case Opcode.TXA:
                 {
                     const zeroFlag = this.X === 0;
-                    const negativeFlag = (this.X & 0x80) == 0x80;
+                    const negativeFlag = (this.X & 0x80) === 0x80;
 
                     this.A = this.X;
 
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
 
                     this.PC += inst.m_Bytes;
                     return inst.m_Cycles;
@@ -777,12 +777,12 @@ export class Cpu {
             case Opcode.TYA:
                 {
                     const zeroFlag = this.Y === 0;
-                    const negativeFlag = (this.Y & 0x80) == 0x80;
+                    const negativeFlag = (this.Y & 0x80) === 0x80;
 
                     this.A = this.Y;
 
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
 
                     this.PC += inst.m_Bytes;
                     return inst.m_Cycles;
@@ -790,19 +790,19 @@ export class Cpu {
             case Opcode.ALR:
                 {
                     // AND + LSR
-                    const [arg, additionalCyc] = this.FetchArg(inst.m_AddressingMode);
+                    const [arg, additionalCyc] = this.fetchArg(inst.m_AddressingMode);
 
                     const tmp = this.A & arg;
 
                     const res = tmp >> 1;
 
-                    const carryFlag = (tmp & 0x01) == 0x01;
-                    const zeroFlag = res == 0;
-                    const negativeFlag = (res & 0x80) == 0x80;
+                    const carryFlag = (tmp & 0x01) === 0x01;
+                    const zeroFlag = res === 0;
+                    const negativeFlag = (res & 0x80) === 0x80;
 
                     this.SetCarryFlag(carryFlag);
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
 
                     this.A = res;
 
@@ -812,17 +812,17 @@ export class Cpu {
             case Opcode.ANC:
                 {
                     // AND して、 N を C にコピー(符号拡張に使えるそうな)
-                    const [arg, additionalCyc] = this.FetchArg(inst.m_AddressingMode);
+                    const [arg, additionalCyc] = this.fetchArg(inst.m_AddressingMode);
 
                     const res = this.A & arg;
 
-                    const carryFlag = this.GetNegativeFlag();
-                    const zeroFlag = res == 0;
-                    const negativeFlag = (res & 0x80) == 0x80;
+                    const carryFlag = this.getNegativeFlag();
+                    const zeroFlag = res === 0;
+                    const negativeFlag = (res & 0x80) === 0x80;
 
                     this.SetCarryFlag(carryFlag);
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
 
                     this.A = res;
 
@@ -832,7 +832,7 @@ export class Cpu {
             case Opcode.ARR:
                 {
                     // AND して、 RORする、 C は bit6、 V は bit6 ^ bit5
-                    const [arg, additionalCyc] = this.FetchArg(inst.m_AddressingMode);
+                    const [arg, additionalCyc] = this.fetchArg(inst.m_AddressingMode);
 
                     const tmp = this.A & arg;
                     const res = tmp >> 1;
@@ -848,8 +848,8 @@ export class Cpu {
 
                     this.SetCarryFlag(carryFlag);
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
-                    this.SetOverflowFlag(overflowFlag);
+                    this.setNegativeFlag(negativeFlag);
+                    this.setOverflowFlag(overflowFlag);
 
                     this.A = res;
 
@@ -859,22 +859,22 @@ export class Cpu {
             case Opcode.AXS:
                 {
                     // X = this.A & this.X - imm、without borrow であることに注意する(解釈間違ってるかも？)
-                    let [arg, additionalCyc] = this.FetchArg(inst.m_AddressingMode);
+                    let [arg, additionalCyc] = this.fetchArg(inst.m_AddressingMode);
 
                     const tmp = this.A & this.X;
 
                     // 2の補数表現での加算に直す
-                    arg = this.GetTwosComplement(arg);
+                    arg = this.getTwosComplement(arg);
                     const calc = tmp + arg;
                     const res = (calc);
 
                     const carryFlag = calc > 0xFF;
-                    const zeroFlag = res == 0;
-                    const negativeFlag = (res & 0x80) == 0x80;
+                    const zeroFlag = res === 0;
+                    const negativeFlag = (res & 0x80) === 0x80;
 
                     this.SetCarryFlag(carryFlag);
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
 
                     this.X = res;
 
@@ -884,13 +884,13 @@ export class Cpu {
             case Opcode.LAX:
                 {
                     // LDA.TAX(X = A = memory)
-                    const [arg, additionalCyc] = this.FetchArg(inst.m_AddressingMode);
+                    const [arg, additionalCyc] = this.fetchArg(inst.m_AddressingMode);
 
-                    const zeroFlag = arg == 0;
-                    const negativeFlag = (arg & 0x80) == 0x80;
+                    const zeroFlag = arg === 0;
+                    const negativeFlag = (arg & 0x80) === 0x80;
 
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
 
                     this.X = arg;
                     this.A = arg;
@@ -900,7 +900,7 @@ export class Cpu {
                 }
             case Opcode.SAX:
                 {
-                    const [addr, dummy] = this.FetchAddr(inst.m_AddressingMode);
+                    const [addr, dummy] = this.fetchAddr(inst.m_AddressingMode);
 
                     // (memory = this.A & this.X)
                     const res = this.A & this.X;
@@ -913,8 +913,8 @@ export class Cpu {
                 {
                     // DEC + CMP
 
-                    const [addr, dummy] = this.FetchAddr(inst.m_AddressingMode);
-                    const [arg, additionalCyc] = this.FetchArg(inst.m_AddressingMode);
+                    const [addr, dummy] = this.fetchAddr(inst.m_AddressingMode);
+                    const [arg, additionalCyc] = this.fetchArg(inst.m_AddressingMode);
 
                     // DEC
                     const res = arg - 1;
@@ -922,12 +922,12 @@ export class Cpu {
                     // CMP
                     const resCmp = this.A - res;
 
-                    const zeroFlag = resCmp == 0;
-                    const negativeFlag = (resCmp & 0x80) == 0x80;
+                    const zeroFlag = resCmp === 0;
+                    const negativeFlag = (resCmp & 0x80) === 0x80;
                     const carryFlag = this.A >= res;
 
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
                     this.SetCarryFlag(carryFlag);
                     this.m_pCpuBus.writeByte(addr, res);
 
@@ -938,30 +938,30 @@ export class Cpu {
             case Opcode.ISC:
                 {
                     // INC + SBC
-                    const [addr, dummy] = this.FetchAddr(inst.m_AddressingMode);
-                    let [arg, additionalCyc] = this.FetchArg(inst.m_AddressingMode);
+                    const [addr, dummy] = this.fetchAddr(inst.m_AddressingMode);
+                    let [arg, additionalCyc] = this.fetchArg(inst.m_AddressingMode);
 
                     // INC
                     this.m_pCpuBus.writeByte(addr, ++arg);
 
                     // 足し算に変換(SBC 同様)
                     // http://www.righto.com/2012/12/the-6502-overflow-flag-explained.html#:~:text=The%20definition%20of%20the%206502,fit%20into%20a%20signed%20byte.&text=For%20each%20set%20of%20input,and%20the%20overflow%20bit%20V.
-                    // A - arg - borrow == A + ~arg + carry
+                    // A - arg - borrow === A + ~arg + carry
 
                     arg = ~arg;
 
-                    const calc = (this.A) + arg + (this.GetCarryFlag() ? 1 : 0);
+                    const calc = (this.A) + arg + (this.getCarryFlag() ? 1 : 0);
                     const res = (calc);
 
                     // 足し算に変換 したので、足し算と同じようにフラグ計算可能
-                    const overflowFlag = this.isSignedOverFlowed(this.A, arg, this.GetCarryFlag());
+                    const overflowFlag = this.isSignedOverFlowed(this.A, arg, this.getCarryFlag());
                     const carryFlag = calc > 0xff;
-                    const negativeFlag = (res & 0x80) == 0x80;
-                    const zeroFlag = res == 0;
+                    const negativeFlag = (res & 0x80) === 0x80;
+                    const zeroFlag = res === 0;
 
-                    this.SetOverflowFlag(overflowFlag);
+                    this.setOverflowFlag(overflowFlag);
                     this.SetCarryFlag(carryFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
                     this.SetZeroFlag(zeroFlag);
 
                     this.A = res;
@@ -975,26 +975,26 @@ export class Cpu {
 
                     // RLA にアドレッシングモード Accumulator はないので、分岐の必要はない
                     if (inst.m_AddressingMode === AddressingMode.Accumulator) throw new Error('Accumulator not found.');
-                    const [addr, dummy] = this.FetchAddr(inst.m_AddressingMode);
-                    const [arg, additionalCyc] = this.FetchArg(inst.m_AddressingMode);
+                    const [addr, dummy] = this.fetchAddr(inst.m_AddressingMode);
+                    const [arg, additionalCyc] = this.fetchArg(inst.m_AddressingMode);
 
                     // ROL
                     let res = arg << 1;
-                    res |= this.GetCarryFlag() ? 1 : 0;
+                    res |= this.getCarryFlag() ? 1 : 0;
 
                     this.m_pCpuBus.writeByte(addr, res);
 
-                    const carryFlag = (arg & 0x80) == 0x80;
+                    const carryFlag = (arg & 0x80) === 0x80;
 
                     // AND
                     res &= this.A;
 
-                    const zeroFlag = res == 0;
-                    const negativeFlag = (res & 0x80) == 0x80;
+                    const zeroFlag = res === 0;
+                    const negativeFlag = (res & 0x80) === 0x80;
 
                     this.SetCarryFlag(carryFlag);
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
 
                     this.A = res;
 
@@ -1005,28 +1005,28 @@ export class Cpu {
             case Opcode.RRA:
                 {
                     // ROR + ADC
-                    const [addr, dummy] = this.FetchAddr(inst.m_AddressingMode);
-                    const [arg, additionalCyc] = this.FetchArg(inst.m_AddressingMode);
+                    const [addr, dummy] = this.fetchAddr(inst.m_AddressingMode);
+                    const [arg, additionalCyc] = this.fetchArg(inst.m_AddressingMode);
 
                     // ROR
                     let res = arg >> 1;
-                    res |= this.GetCarryFlag() ? 0x80 : 0;
+                    res |= this.getCarryFlag() ? 0x80 : 0;
 
-                    const carryFlag = (arg & 1) == 1;
+                    const carryFlag = (arg & 1) === 1;
                     this.SetCarryFlag(carryFlag);
                     this.m_pCpuBus.writeByte(addr, res);
 
                     // ADC
-                    const calc = (this.A) + res + (this.GetCarryFlag() ? 1 : 0);
-                    const overflowFlag = this.isSignedOverFlowed(this.A, res, this.GetCarryFlag());
+                    const calc = (this.A) + res + (this.getCarryFlag() ? 1 : 0);
+                    const overflowFlag = this.isSignedOverFlowed(this.A, res, this.getCarryFlag());
 
                     res = (calc);
 
                     this.SetCarryFlag(calc > 0xff);
-                    this.SetZeroFlag(res == 0);
-                    this.SetNegativeFlag((res & 0x80) == 0x80);
+                    this.SetZeroFlag(res === 0);
+                    this.setNegativeFlag((res & 0x80) === 0x80);
                     // http://forums.nesdev.com/viewtopic.php?t=6331
-                    this.SetOverflowFlag(overflowFlag);
+                    this.setOverflowFlag(overflowFlag);
 
                     this.A = res;
 
@@ -1037,14 +1037,14 @@ export class Cpu {
             case Opcode.SLO:
                 {
                     // ASL + ORA
-                    const [addr, dummy] = this.FetchAddr(inst.m_AddressingMode);
-                    const [arg, additionalCyc] = this.FetchArg(inst.m_AddressingMode);
+                    const [addr, dummy] = this.fetchAddr(inst.m_AddressingMode);
+                    const [arg, additionalCyc] = this.fetchArg(inst.m_AddressingMode);
 
                     // ASL
                     let res = arg << 1;
 
                     // MSB が立ってる時に左シフトしたら carry になる
-                    const carryFlag = (arg & 0x80) == 0x80;
+                    const carryFlag = (arg & 0x80) === 0x80;
                     this.SetCarryFlag(carryFlag);
 
                     this.m_pCpuBus.writeByte(addr, res);
@@ -1052,11 +1052,11 @@ export class Cpu {
                     // ORA
                     res |= this.A;
 
-                    const zeroFlag = res == 0;
-                    const negativeFlag = (res & 0x80) == 0x80;
+                    const zeroFlag = res === 0;
+                    const negativeFlag = (res & 0x80) === 0x80;
 
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
 
                     this.A = res;
 
@@ -1067,12 +1067,12 @@ export class Cpu {
             case Opcode.SRE:
                 {
                     // LSR + EOR
-                    const [addr, dummy] = this.FetchAddr(inst.m_AddressingMode);
-                    const [arg, additionalCyc] = this.FetchArg(inst.m_AddressingMode);
+                    const [addr, dummy] = this.fetchAddr(inst.m_AddressingMode);
+                    const [arg, additionalCyc] = this.fetchArg(inst.m_AddressingMode);
 
                     let res = arg >> 1;
 
-                    const carryFlag = (arg & 1) == 1;
+                    const carryFlag = (arg & 1) === 1;
                     this.SetCarryFlag(carryFlag);
 
                     this.m_pCpuBus.writeByte(addr, res);
@@ -1080,11 +1080,11 @@ export class Cpu {
                     // EOR
                     res ^= this.A;
 
-                    const zeroFlag = res == 0;
-                    const negativeFlag = (res & 0x80) == 0x80;
+                    const zeroFlag = res === 0;
+                    const negativeFlag = (res & 0x80) === 0x80;
 
                     this.SetZeroFlag(zeroFlag);
-                    this.SetNegativeFlag(negativeFlag);
+                    this.setNegativeFlag(negativeFlag);
 
                     this.A = res;
 
@@ -1095,7 +1095,7 @@ export class Cpu {
             case Opcode.SKB:
                 {
                     // 副作用を気にしたくなった場合のためにフェッチだけする
-                    const [arg, additionalCyc] = this.FetchArg(inst.m_AddressingMode);
+                    const [arg, additionalCyc] = this.fetchArg(inst.m_AddressingMode);
 
                     this.PC += inst.m_Bytes;
                     return inst.m_Cycles;
@@ -1103,7 +1103,7 @@ export class Cpu {
             case Opcode.IGN:
                 {
                     // 副作用を気にしたくなった場合のためにフェッチだけする
-                    const [arg, additionalCyc] = this.FetchArg(inst.m_AddressingMode);
+                    const [arg, additionalCyc] = this.fetchArg(inst.m_AddressingMode);
 
                     this.PC += inst.m_Bytes;
                     return inst.m_Cycles + additionalCyc;
@@ -1148,27 +1148,27 @@ export class Cpu {
         const m_pCpuBus = this.m_pCpuBus;
 
         // nested interrupt が許されるのは RESET と NMI のみ
-        const nested = this.GetInterruptFlag();
+        const nested = this.getInterruptFlag();
 
-        if (nested && (type == InterruptType.BRK || type == InterruptType.IRQ)) return;
+        if (nested && (type === InterruptType.BRK || type === InterruptType.IRQ)) return;
 
         let lower = 0;
         let upper = 0;
 
         // 割り込みフラグをたてる
-        this.SetInterruptFlag(true);
+        this.setInterruptFlag(true);
 
         switch (type) {
             case InterruptType.NMI:
                 {
-                    this.SetBreakFlag(false);
-                    this.PushStack((this.PC >> 8));
-                    this.PushStack(this.PC);
+                    this.setBreakFlag(false);
+                    this.pushStack((this.PC >> 8));
+                    this.pushStack(this.PC);
 
                     // NMI, IRQ のときは 5, 4 bit 目を 10にする
                     let pushData = this.P & 0b11001111;
                     pushData |= (1 << 5);
-                    this.PushStack(pushData);
+                    this.pushStack(pushData);
 
                     lower = m_pCpuBus.readByte(0xFFFA);
                     upper = m_pCpuBus.readByte(0xFFFB);
@@ -1189,14 +1189,14 @@ export class Cpu {
                 }
             case InterruptType.IRQ:
                 {
-                    this.SetBreakFlag(false);
-                    this.PushStack((this.PC >> 8));
-                    this.PushStack(this.PC);
+                    this.setBreakFlag(false);
+                    this.pushStack((this.PC >> 8));
+                    this.pushStack(this.PC);
 
                     // NMI, IRQ のときは 5, 4 bit 目を 10にする
                     let pushData = this.P & 0b11001111;
                     pushData |= (1 << 5);
-                    this.PushStack(pushData);
+                    this.pushStack(pushData);
 
                     lower = m_pCpuBus.readByte(0xFFFE);
                     upper = m_pCpuBus.readByte(0xFFFF);
@@ -1206,17 +1206,17 @@ export class Cpu {
                 }
             case InterruptType.BRK:
                 {
-                    this.SetBreakFlag(true);
+                    this.setBreakFlag(true);
                     this.PC++;
 
                     // PC push
-                    this.PushStack((this.PC >> 8));
-                    this.PushStack(this.PC);
+                    this.pushStack((this.PC >> 8));
+                    this.pushStack(this.PC);
 
                     // BRK のときは 5, 4 bit目を 11 にするので雑に OR するだけでいい
                     let pushData = this.P;
                     pushData |= 0b110000;
-                    this.PushStack(pushData);
+                    this.pushStack(pushData);
 
                     lower = m_pCpuBus.readByte(0xFFFE);
                     upper = m_pCpuBus.readByte(0xFFFF);
@@ -1237,7 +1237,7 @@ export class Cpu {
     // ---- private methods ----
 
     // ステータスフラグをいじる関数
-    private SetNegativeFlag(flag: boolean): void {
+    private setNegativeFlag(flag: boolean): void {
         const bit = 1 << 7;
         if (flag) this.P |= bit;
         else this.P &= ~bit;
@@ -1245,13 +1245,13 @@ export class Cpu {
 
     // TODO 代表関数 setFlag() みたいなんを作り、まとめる。
 
-    private SetOverflowFlag(flag: boolean): void {
+    private setOverflowFlag(flag: boolean): void {
         const bit = 1 << 6;
         if (flag) this.P |= bit;
         else this.P &= ~bit;
     }
 
-    private SetBreakFlag(flag: boolean): void {
+    private setBreakFlag(flag: boolean): void {
         if (flag) {
             this.P |= (1 << 4);
         }
@@ -1260,7 +1260,7 @@ export class Cpu {
         }
     }
 
-    private SetDecimalFlag(flag: boolean): void {
+    private setDecimalFlag(flag: boolean): void {
         if (flag) {
             this.P |= (1 << 3);
         }
@@ -1269,7 +1269,7 @@ export class Cpu {
         }
     }
 
-    private SetInterruptFlag(flag: boolean): void {
+    private setInterruptFlag(flag: boolean): void {
         if (flag) {
             this.P |= (1 << 2);
         }
@@ -1286,6 +1286,7 @@ export class Cpu {
             this.P &= ~(1 << 1);
         }
     }
+
     private SetCarryFlag(flag: boolean): void {
         if (flag) {
             this.P |= 1;
@@ -1297,33 +1298,39 @@ export class Cpu {
 
     // TODO GetFlagみたいなのを作ってまとめる。
 
-    private GetNegativeFlag() {
-        return (this.P & (1 << 7)) == (1 << 7);
+    private getNegativeFlag(): boolean {
+        return (this.P & (1 << 7)) === (1 << 7);
     }
-    private GetOverflowFlag() {
-        return (this.P & (1 << 6)) == (1 << 6);
+
+    private getOverflowFlag(): boolean {
+        return (this.P & (1 << 6)) === (1 << 6);
     }
-    private GetBreakFlag() {
-        return (this.P & (1 << 4)) == (1 << 4);
+
+    private getBreakFlag(): boolean {
+        return (this.P & (1 << 4)) === (1 << 4);
     }
-    private GetDecimalFlag() {
-        return (this.P & (1 << 3)) == (1 << 3);
+
+    private getDecimalFlag(): boolean {
+        return (this.P & (1 << 3)) === (1 << 3);
     }
-    private GetInterruptFlag() {
-        return (this.P & (1 << 2)) == (1 << 2);
+
+    private getInterruptFlag(): boolean {
+        return (this.P & (1 << 2)) === (1 << 2);
     }
-    private GetZeroFlag() {
-        return (this.P & (1 << 1)) == (1 << 1);
+
+    private getZeroFlag(): boolean {
+        return (this.P & (1 << 1)) === (1 << 1);
     }
-    private GetCarryFlag() {
-        return (this.P & 1) == 1;
+
+    private getCarryFlag(): boolean {
+        return (this.P & 1) === 1;
     }
 
     // アドレッシングモードによってオペランドのアドレスをフェッチし、アドレスと追加クロックサイクルを返す
     // 以下は、アドレスを対象にする命令(例: ストア).FetchAddr, 値(参照を剥がして値にするものも含む)を対象にする命令(例: ADC).FetchArg と使い分ける
 
     // ブランチ条件成立時の追加クロックサイクルは考慮しないことに注意すること
-    private FetchAddr(mode: AddressingMode): [number, number] {
+    private fetchAddr(mode: AddressingMode): [number, number] {
         const m_pCpuBus = this.m_pCpuBus;
 
         // アドレスじゃないはずの人らが来てたらプログラミングミスなので assert しとく
@@ -1346,26 +1353,26 @@ export class Cpu {
 
             pOutAddr = addr;
         }
-        else if (mode == AddressingMode.ZeroPage) {
+        else if (mode === AddressingMode.ZeroPage) {
             const addr = m_pCpuBus.readByte(this.PC + 1);
 
             pOutAddr = addr;
         }
-        else if (mode == AddressingMode.ZeroPageX) {
+        else if (mode === AddressingMode.ZeroPageX) {
             let lower = m_pCpuBus.readByte(this.PC + 1);
 
             // 上位バイトへの桁上げは無視、なので uint8 のまま加算する
             lower += this.X;
             pOutAddr = lower;
         }
-        else if (mode == AddressingMode.ZeroPageY) {
+        else if (mode === AddressingMode.ZeroPageY) {
             let lower = m_pCpuBus.readByte(this.PC + 1);
 
             // 上位バイトへの桁上げは無視、なので uint8 のまま加算する
             lower += this.Y;
             pOutAddr = lower;
         }
-        else if (mode == AddressingMode.AbsoluteX) {
+        else if (mode === AddressingMode.AbsoluteX) {
             let upper = 0;
             let lower = 0;
             lower = m_pCpuBus.readByte(this.PC + 1);
@@ -1385,7 +1392,7 @@ export class Cpu {
             }
 
         }
-        else if (mode == AddressingMode.AbsoluteY) {
+        else if (mode === AddressingMode.AbsoluteY) {
             let upper = 0;
             let lower = 0;
             lower = m_pCpuBus.readByte(this.PC + 1);
@@ -1404,7 +1411,7 @@ export class Cpu {
                 pOutAdditionalCyc = 1;
             }
         }
-        else if (mode == AddressingMode.Relative) {
+        else if (mode === AddressingMode.Relative) {
             const offset = m_pCpuBus.readByte(this.PC + 1);
             // 符号拡張 する(若干怪しいので、バグったら疑う(最悪))
             const signedOffset = offset;
@@ -1422,7 +1429,7 @@ export class Cpu {
                 pOutAdditionalCyc = 1;
             }
         }
-        else if (mode == AddressingMode.IndirectX) {
+        else if (mode === AddressingMode.IndirectX) {
             // *(lower + X)
             let indirectLower = m_pCpuBus.readByte(this.PC + 1);
             // キャリーは無視 = オーバーフローしても気にしない(符号なし整数のオーバーフローは未定義でないことを確認済み)
@@ -1436,7 +1443,7 @@ export class Cpu {
 
             pOutAddr = addr;
         }
-        else if (mode == AddressingMode.IndirectY) {
+        else if (mode === AddressingMode.IndirectY) {
             // *(lower) + Y
             // キャリーは無視 = オーバーフローしても気にしない
             let lowerAddr = m_pCpuBus.readByte(this.PC + 1);
@@ -1456,7 +1463,7 @@ export class Cpu {
                 pOutAdditionalCyc = 1;
             }
         }
-        else if (mode == AddressingMode.Indirect) {
+        else if (mode === AddressingMode.Indirect) {
             // **(addr)
             const indirectAddr = 0;
 
@@ -1484,23 +1491,23 @@ export class Cpu {
     }
 
     // アドレッシングモードによってオペランドの参照を適切に剥がして値を返す
-    private FetchArg(mode: AddressingMode): [number, number] {
+    private fetchArg(mode: AddressingMode): [number, number] {
         let pOutValue = 0;
         let pOutAdditionalCyc = 0;
 
         // 引数を持たないアドレッシングモードで呼ばれたらプログラミングミスなので assert しとく
         if (mode === AddressingMode.Implied) throw new Error('Invalid Addressing Mode.');
 
-        if (mode == AddressingMode.Accumulator) {
+        if (mode === AddressingMode.Accumulator) {
             pOutValue = this.A;
         }
-        else if (mode == AddressingMode.Immediate) {
+        else if (mode === AddressingMode.Immediate) {
             // Immediate は PC + 1 から素直に読む
             pOutValue = this.m_pCpuBus.readByte(this.PC + 1);
         }
         else {
             // 他はアドレスがオペランドになってるはずなので、アドレスを持ってきて1回参照を剥がす(Indirect は2回参照を剥がす必要があるが、1回は FetchAddr 側で剥がしている)
-            const [addr, cyc] = this.FetchAddr(mode);
+            const [addr, cyc] = this.fetchAddr(mode);
             // FIXME この代入を行っているかは怪しい…元ロジックとC++の言語仕様を確認スべし。
             pOutAdditionalCyc = cyc;
             pOutValue = this.m_pCpuBus.readByte(addr);
@@ -1510,12 +1517,12 @@ export class Cpu {
 
 
     // スタック 操作
-    private PushStack(data: number): void {
+    private pushStack(data: number): void {
         this.m_pCpuBus.writeByte(this.SP | (1 << 8), data);
         this.SP--;
     }
 
-    private PopStack(): number {
+    private popStack(): number {
         this.SP++;
         return this.m_pCpuBus.readByte(this.SP | (1 << 8));
     }
@@ -1526,11 +1533,11 @@ export class Cpu {
     // 符号付き整数の加減算オーバーフロー判定だが、引数は uint8_tであることに注意する(符号付き整数のオーバーフローは未定義)
     private isSignedOverFlowed(N: number, M: number, C: boolean): boolean {
         const res = N + M + (C ? 1 : 0);
-        return ((M ^ res) & (N ^ res) & 0x80) == 0x80;
+        return ((M ^ res) & (N ^ res) & 0x80) === 0x80;
     }
 
     // 8bit 符号つき整数における n の 2の補数表現を取得する
-    private GetTwosComplement(n: number): number {
+    private getTwosComplement(n: number): number {
         return ~n + 1;
     }
 }
