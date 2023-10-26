@@ -44,14 +44,14 @@ export class CpuBus {
             const idx = addr - Constants.APU_IO_REG_BASE;
 
             // APU
-            if (addr == 0x4015) {
+            if (addr === 0x4015) {
                 return m_pApu.readRegister4015();
             }
             // Pad
-            else if (addr == 0x4016) {
+            else if (addr === 0x4016) {
                 return m_pSystem.m_Pads[0].readPad();
             }
-            else if (addr == 0x4017) {
+            else if (addr === 0x4017) {
                 return m_pSystem.m_Pads[1].readPad();
             }
 
@@ -121,17 +121,17 @@ export class CpuBus {
             }
 
             // APU コントロールレジスタ
-            if (addr == 0x4015 || addr == 0x4017) {
+            if (addr === 0x4015 || addr === 0x4017) {
                 m_pApu.writeRegister(data, addr);
             }
 
             // DMA
-            if (addr == 0x4014) {
+            if (addr === 0x4014) {
                 this.kickDma(data);
             }
 
             // Pad
-            if (addr == 0x4016) {
+            if (addr === 0x4016) {
                 // 4016 の書き込みで Pad 0 1 の setstrobe されるのが正しい？ メモ: https://taotao54321.hatenablog.com/entry/2017/04/11/011850
                 // 4017 書き込みは APU 制御なので。
                 const onStrobe = (data & 1) === 1;
@@ -162,7 +162,7 @@ export class CpuBus {
             this.m_pPpu.m_Oam[i] = this.readByte(addr + i);
         }
 
-        return cpuCycles % 2 == 0 ? 513 : 514;
+        return cpuCycles % 2 === 0 ? 513 : 514;
     }
 
     // 転送元の アドレスの上位バイトを与えてDMA 起動、下位バイトは 00
