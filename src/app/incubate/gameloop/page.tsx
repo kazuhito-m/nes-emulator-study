@@ -2,11 +2,8 @@
 
 import * as React from 'react';
 import { useState } from 'react';
-import { Box, Button, Grid, Paper, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import { Box, Button, Grid, Paper, Table, TableBody, TableCell, TableHead, TableRow, TextField } from '@mui/material';
 import { OscillatorUseSetInterval } from './oscillator-use-setinterval';
-
-const IDEAL_FPX = 60;
-const IDEAL_INTERVAL_MS = 1000 / IDEAL_FPX;
 
 let oscillator = {} as OscillatorUseSetInterval;
 if (typeof window !== 'undefined') oscillator = new OscillatorUseSetInterval(window);
@@ -16,6 +13,8 @@ const togleText = ['start', 'stop'];
 export default function Page() {
   const [fpsText, fpsTextSet] = useState('');
   const [countText, countTextSet] = useState('');
+  const [inputFpsText, inputFpsTextSet] = useState('60');
+  const [isLooping, isLoopingSet] = useState(false);
 
   const watchFps = (fps: number, count: number) => {
     fpsTextSet(fps.toFixed(3));
@@ -25,9 +24,17 @@ export default function Page() {
   const [buttonText, buttonTextSet] = useState(togleText[0]);
 
   const handleRunEmulator = () => {
-    buttonTextSet(togleText.find(i => i !== buttonText) as string);
-    if (oscillator.isStarted()) oscillator.stop()
-    else oscillator.start(IDEAL_FPX, () => { }, watchFps);
+    const inputFps = parseInt(inputFpsText, 10);
+    if (!inputFps || inputFps <= 0) {
+      alert('fpsの書式が不正です。');
+      return;
+    }
+
+    if (isLooping) oscillator.stop()
+    else oscillator.start(inputFps, () => { }, watchFps);
+
+    isLoopingSet(!isLooping);
+    buttonTextSet(togleText[isLooping ? 0 : 1]);
   };
 
   return (
@@ -60,13 +67,16 @@ export default function Page() {
             <Table size="small">
               <TableBody>
                 <TableRow >
-                  <TableCell>FPS</TableCell>
-                </TableRow>
-                <TableRow >
                   <TableCell>
                     <Button onClick={handleRunEmulator}>{buttonText} loop</Button>
                   </TableCell>
                 </TableRow >
+                <TableRow >
+                  <TableCell>
+                    <TextField label="FPS" type="number" disabled={isLooping}
+                      value={inputFpsText} onChange={(e) => inputFpsTextSet(e.target.value)} />
+                  </TableCell>
+                </TableRow>
               </TableBody>
             </Table>
 
@@ -101,7 +111,7 @@ export default function Page() {
                 </TableRow >
                 <TableRow >
                   <TableCell>Idial Interval(ms)</TableCell>
-                  <TableCell>{IDEAL_INTERVAL_MS}</TableCell>
+                  <TableCell>{inputFpsText}</TableCell>
                 </TableRow >              </TableBody>
             </Table>
 
