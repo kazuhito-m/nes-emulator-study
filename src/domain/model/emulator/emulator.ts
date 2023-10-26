@@ -50,12 +50,12 @@ export class Emulator {
         this.m_Cpu.interrupt(InterruptType.RESET);
     }
 
-    public GetColor(color: number): Color {
+    public getColor(color: number): Color {
         return this.colorConvertTable.get(color);
     }
 
     /** 1フレーム進める。 */
-    public StepFrame(): void {
+    public stepFrame(): void {
         let finished = false;
         while (!finished) {
             // DMA 稼働中は CPU 止まるので、これでつじつまが合う
@@ -85,17 +85,17 @@ export class Emulator {
     }
 
     /** テーブル変換前の絵を取得。 */
-    public GetPicture(pBuffer: number[][] /* [240][256] */): void {
+    public getPicture(pBuffer: number[][] /* [240][256] */): void {
         this.m_Ppu.getPpuOutput(pBuffer);
     }
 
     /** テーブル変換後の絵を取得。 */
-    public GetPictureColor(pBuffer: Color[][]  /* [240][256] */): void {
+    public getPictureColor(pBuffer: Color[][]  /* [240][256] */): void {
         const raw = initializeTwoDimensionalArray<number>(Constants.PPU_OUTPUT_Y, Constants.PPU_OUTPUT_X);
         this.m_Ppu.getPpuOutput(raw);
         for (let y = 0; y < Constants.PPU_OUTPUT_Y; y++) {
             for (let x = 0; x < Constants.PPU_OUTPUT_X; x++) {
-                pBuffer[y][x] = this.GetColor(raw[y][x]);
+                pBuffer[y][x] = this.getColor(raw[y][x]);
             }
         }
     }
