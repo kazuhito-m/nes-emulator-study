@@ -1,11 +1,16 @@
+'use strict';
+
 /**
- * コンストラクタでグローバルなテーブルを初期化するイニシャライザ。
+ * コンストラクタでグローバルなテーブル。
  */
-export class ApuTableInitializer {
+export class ApuTable {
+    /**
+     * コンストラクタでグローバルなテーブルを定義する。
+     */
     constructor(
-        g_LengthTable: number[],
-        g_NoiseFreqTable: number[],
-        g_DmcFreqTable: number[]
+        public readonly g_LengthTable: number[] = new Array(32),
+        public readonly g_NoiseFreqTable: number[] = new Array(16),
+        public readonly g_DmcFreqTable: number[] = new Array(16)
     ) {
         // 値のソース http://pgate1.at-ninja.jp/NES_on_FPGA/nes_apu.htm
         g_LengthTable[0b00000] = 0x0A;
@@ -76,5 +81,9 @@ export class ApuTableInitializer {
         g_DmcFreqTable[0xD] = 0x054;
         g_DmcFreqTable[0xE] = 0x048;
         g_DmcFreqTable[0xF] = 0x036;
+
+        Object.freeze(g_LengthTable);
+        Object.freeze(g_NoiseFreqTable);
+        Object.freeze(g_DmcFreqTable);
     }
 }

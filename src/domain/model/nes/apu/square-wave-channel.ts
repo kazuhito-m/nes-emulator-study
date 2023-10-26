@@ -1,3 +1,5 @@
+import { ApuTable } from "./apu-table";
+
 /**
  * 矩形波 チャンネル。
  * 
@@ -10,14 +12,17 @@ export class SquareWaveChannel {
     // どれが読み取り専用かわからんので全部変数にしちゃう。
     // レジスタ書き込み時に設定することにする。
 
-    // $4000		
-    // Duty Table 配列先頭を指すポインタ		
-    private m_DutyTable: number[][] = [
+    // テーブル
+    private readonly m_DutyTables: number[][] = [
         [0, 1, 0, 0, 0, 0, 0, 0],
         [0, 1, 1, 0, 0, 0, 0, 0],
         [0, 1, 1, 1, 1, 0, 0, 0],
         [1, 0, 0, 1, 1, 1, 1, 1],
-    ];  // TORIAEZU: 設定する前に音ならす ROM があってぬるぽ触ってしまうようなら考える
+    ];
+
+    // $4000		
+    // Duty Table 配列先頭を指すポインタ		
+    private m_DutyTable: number[] = this.m_DutyTables[0];  // TORIAEZU: 設定する前に音ならす ROM があってぬるぽ触ってしまうようなら考える
 
     private m_DecayLoop = false;
     private m_LengthEnabled = false;
@@ -64,7 +69,50 @@ export class SquareWaveChannel {
     }
 
     public WriteRegister(value: number, addr: number): void {
-        // TODO 実装。
+        const offset = addr - this.m_BaseAddr;
+
+        switch (offset) {
+            case 0:
+                this.m_DutyTable = this.m_DutyTables[value >> 6];
+                this.m_DecayLoop = ((value >> 5) & 1) === 1;
+                this.m_LengthEnabled = !this.m_DecayLoop;
+                this.m_DecayEnabled = ((value >> 4) & 1) === 0;
+                this.m_DecayV = value & 0b1111;
+                break;
+            case 1:
+                this.m_SweepTimer = (value >> 4) & 0b111;
+                this.m_SweepNegate = ((value >> 3) & 1) === 1;
+                this.m_SweepShift = value & 0b111;
+                this.m_SweepReload = true;
+                this.m_SweepEnabled = ((value >> 7) & 1) === 1 && this.m_SweepShift != 0;
+                break;
+            case 2:
+                // this.m_FreqTImer の上位3bitだけ残してクリア
+                this.m_FreqTimer &= 0b11100000000;
+                // this.m_FreqTimer の 下位8bitを更新
+                this.m_FreqTimer |= value;
+                break;
+            case 3:
+                {
+                    // this.m_FreqTimer の上位3 bit をクリア
+                    this.m_FreqTimer &= 0b11111111;
+                    const hi = value & 0b111;
+                    this.m_FreqTimer |= (hi << 8);
+
+                    // length Counter 更新
+                    // 書き込み値の上位5bitが table のインデックス
+                    let tableIndex = value & 0b11111000;
+                    tableIndex >>= 3;
+                    this.m_LengthCounter = new ApuTable().g_LengthTable[tableIndex];
+
+                    this.m_FreqCounter = this.m_FreqTimer;
+                    this.m_DutyCounter = 0;
+                    this.m_DecayResetFlag = true;
+                    break;
+                }
+            default:
+                break;
+        }
     }
 
     // APU 全体レジスタ($4015, $4017 の書き込みで反映される値)
