@@ -2,68 +2,38 @@
 
 import * as React from 'react';
 import { useState } from 'react';
-import { Box, Button, Grid, Paper, Slider, Stack, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material';
+import { Box, Button, Grid, Paper, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import { OscillatorUseSetInterval } from './oscillator-use-setinterval';
 
 const IDEAL_FPX = 60;
 const IDEAL_INTERVAL_MS = 1000 / IDEAL_FPX;
 
-let count = 0;
-let startTime: Date;
+let oscillator = {} as OscillatorUseSetInterval;
+if (typeof window !== 'undefined') oscillator = new OscillatorUseSetInterval(window);
 
-let lastWatchTotalCount = 0;
-let lastWatch: Date;
-
-let frameIId = 0;
-let watchIId = 0;
 const togleText = ['start', 'stop'];
 
 export default function Page() {
-  const frameProcess = () => {
-    count++;
-  }
-
   const [fpsText, fpsTextSet] = useState('');
   const [countText, countTextSet] = useState('');
 
-  const watchProcess = () => {
-    const now = new Date();
-    const nowIntervalCount = count - lastWatchTotalCount;
-    const intavalMs = now.getTime() - lastWatch.getTime();
-    const fps = nowIntervalCount / intavalMs * 1000;
-    const text = fps.toFixed(3);
+  const watchFps = (fps: number, count: number) => {
     fpsTextSet(fps.toFixed(3));
     countTextSet(count.toString());
-
-    lastWatchTotalCount = count;
-    lastWatch = now;
   }
 
   const [buttonText, buttonTextSet] = useState(togleText[0]);
 
   const handleRunEmulator = () => {
     buttonTextSet(togleText.find(i => i !== buttonText) as string);
-
-    if (frameIId !== 0) {
-      window.clearInterval(frameIId);
-      window.clearInterval(watchIId);
-      frameIId = 0;
-      watchIId = 0;
-      return;
-    }
-
-    count = 0;
-    startTime = new Date();
-    lastWatchTotalCount = 0;
-    lastWatch = startTime;
-
-    frameIId = window.setInterval(frameProcess, IDEAL_INTERVAL_MS);
-    watchIId = window.setInterval(watchProcess, 1000);
+    if (oscillator.isStarted()) oscillator.stop()
+    else oscillator.start(IDEAL_FPX, () => { }, watchFps);
   };
 
   return (
     <Box>
       <Grid container spacing={3}>
-        <Grid item xs={12} md={8} lg={8}>
+        <Grid item xs={12} md={6} lg={6}>
           <Paper
             sx={{
               p: 2,
@@ -74,10 +44,35 @@ export default function Page() {
           >
             <div>Game Monitor</div>
             <canvas width="512" height="480"></canvas>
-            <Button onClick={handleRunEmulator}>{buttonText} loop</Button>
           </Paper>
         </Grid>
-        <Grid item xs={12} md={4} lg={4}>
+        <Grid item xs={12} md={3} lg={3}>
+          <Paper
+            sx={{
+              p: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              height: 550,
+            }}
+          >
+            <div>Run Parameter</div>
+
+            <Table size="small">
+              <TableBody>
+                <TableRow >
+                  <TableCell>FPS</TableCell>
+                </TableRow>
+                <TableRow >
+                  <TableCell>
+                    <Button onClick={handleRunEmulator}>{buttonText} loop</Button>
+                  </TableCell>
+                </TableRow >
+              </TableBody>
+            </Table>
+
+          </Paper>
+        </Grid>
+        <Grid item xs={12} md={3} lg={3}>
           <Paper
             sx={{
               p: 2,
