@@ -1,4 +1,4 @@
-import { AddressingMode } from "./cpu";
+import { AddressingMode } from "./addresing-mode";
 import { Opcode } from "./opcode";
 
 export class Instruction {
