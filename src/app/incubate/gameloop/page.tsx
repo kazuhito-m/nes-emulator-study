@@ -49,9 +49,15 @@ export default function Page() {
     if (isLooping) oscillator.stop()
     else {
       const canvas = canvasRef.current;
-      if (!canvas) { alert('キャンバスが首都出来ませんでした。処理は行いません。'); return; }
-      const runner = new EmulatorTestRunner(canvas);
-      oscillator.start(inputFps, () => runner.stepFrame(), watchFps);
+      if (!canvas) { alert('キャンバスが取得出来ませんでした。処理は行いません。'); return; }
+      try {
+        const runner = new EmulatorTestRunner(canvas);
+        oscillator.start(inputFps, () => runner.stepFrame(), watchFps);
+      } catch (e) {
+        console.log(e);
+        alert(`${e} 処理は行いません。`);
+        return;
+      }
     }
 
     isLoopingSet(!isLooping);
