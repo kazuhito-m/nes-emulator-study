@@ -8,6 +8,7 @@ import { OscillatorUseRequestAnimationFrame } from './osclilator/oscillator-use-
 import { OscillatorUseSetInterval } from './osclilator/oscillator-use-setinterval';
 
 const DEFAULT_FPS = '60';
+const BUTTON_TOGGLE_TEXT = ['start', 'stop'];
 
 const oscillators: { [index: string]: Oscillator } = {};
 if (typeof window !== 'undefined') {
@@ -15,7 +16,9 @@ if (typeof window !== 'undefined') {
   oscillators["setInterval"] = new OscillatorUseSetInterval(window);
 }
 
-const togleText = ['start', 'stop'];
+const processingOneFrame = (): void => {
+  console.log('processing one frame !');
+}
 
 export default function Page() {
   const [fpsText, fpsTextSet] = useState('');
@@ -34,7 +37,7 @@ export default function Page() {
     countTextSet(count.toString());
   }
 
-  const [buttonText, buttonTextSet] = useState(togleText[0]);
+  const [buttonText, buttonTextSet] = useState(BUTTON_TOGGLE_TEXT[0]);
 
   const handleRunEmulator = () => {
     const inputFps = parseInt(inputFpsText, 10);
@@ -46,10 +49,10 @@ export default function Page() {
     const oscillator = oscillators[oscillationAlgo];
 
     if (isLooping) oscillator.stop()
-    else oscillator.start(inputFps, () => { }, watchFps);
+    else oscillator.start(inputFps, processingOneFrame, watchFps);
 
     isLoopingSet(!isLooping);
-    buttonTextSet(togleText[isLooping ? 0 : 1]);
+    buttonTextSet(BUTTON_TOGGLE_TEXT[isLooping ? 0 : 1]);
   };
 
   return (
