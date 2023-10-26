@@ -38,7 +38,7 @@ export class Apu {
     private m_OutputVal = 0;
 
     // バス(割り込み用)
-    private m_pApuBus?: ApuBus;
+    private m_pApuBus: ApuBus;
 
     //  wave のサンプルを追加するコールバック
     private m_pAddWaveSample: (value: number) => void;
@@ -137,7 +137,7 @@ export class Apu {
                 }
                 if (isRaiseIrq) {
                     // TODO: CpuBus を使って IRQ 割り込みを上げる デバッグ
-                    this.m_pApuBus!.GenerateCpuInterrupt();
+                    this.m_pApuBus.GenerateCpuInterrupt();
                     this.m_IrqPending = true;
                 }
 
@@ -196,19 +196,18 @@ export class Apu {
 
     // 出力値
     public GetOutPut(): number {
-        // TODO 実装。
+        return this.m_OutputVal;
     }
 
     // DMC 用 DMA Read
     public DmaReadFromCpu(addr: number): number {
-        // TODO 実装。
+        return this.m_pApuBus.ReadByte(addr);
     }
 
     // DMC 用 割り込みリクエスト
     public GenerateCpuInterrupt(): void {
-        // TODO 実装。
+        this.m_pApuBus.GenerateCpuInterrupt();
     }
-
 
     // ---- private methods ----
 
