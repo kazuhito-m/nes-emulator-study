@@ -1,9 +1,9 @@
 import { Color } from "./color";
 
 /**
- * 	色変換テーブル。
- * ref: https://qiita.com/bokuweb/items/1575337bef44ae82f4d3#%E3%83%91%E3%83%AC%E3%83%83%E3%83%88
- */
+* 	色変換テーブル。
+* ref: https://qiita.com/bokuweb/items/1575337bef44ae82f4d3#%E3%83%91%E3%83%AC%E3%83%83%E3%83%88
+*/
 export class ColorConvertTable {
     private static readonly COLORS = Object.freeze([
         [0x80, 0x80, 0x80], [0x00, 0x3D, 0xA6], [0x00, 0x12, 0xB0], [0x44, 0x00, 0x96],
@@ -22,14 +22,9 @@ export class ColorConvertTable {
         [0xFF, 0xA8, 0xF9], [0xFF, 0xAB, 0xB3], [0xFF, 0xD2, 0xB0], [0xFF, 0xEF, 0xA6],
         [0xFF, 0xF7, 0x9C], [0xD7, 0xE8, 0x95], [0xA6, 0xED, 0xAF], [0xA2, 0xF2, 0xDA],
         [0x99, 0xFF, 0xFC], [0xDD, 0xDD, 0xDD], [0x11, 0x11, 0x11], [0x11, 0x11, 0x11],
-    ]);
+    ].map(rgb => new Color(rgb[0], rgb[1], rgb[2])));
 
     public get(color: number): Color {
-        const hit = ColorConvertTable.COLORS[color];
-        return new Color(
-            hit[0],
-            hit[1],
-            hit[2]
-        );
+        return ColorConvertTable.COLORS[color];
     }
 }
