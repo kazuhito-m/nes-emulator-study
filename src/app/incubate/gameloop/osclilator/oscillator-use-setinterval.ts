@@ -1,4 +1,6 @@
-export class OscillatorUseSetInterval {
+import { Oscillator } from "./oscillatori";
+
+export class OscillatorUseSetInterval implements Oscillator {
     constructor(private readonly window: Window) { }
 
     private count = 0;
