@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { Box, Button, Grid, Paper, Table, TableBody, TableCell, TableHead, TableRow, TextField } from '@mui/material';
-import { OscillatorUseSetInterval } from './oscillator-use-setinterval';
+import { OscillatorUseSetInterval } from './osclilator/oscillator-use-setinterval';
 
 let oscillator = {} as OscillatorUseSetInterval;
 if (typeof window !== 'undefined') oscillator = new OscillatorUseSetInterval(window);
