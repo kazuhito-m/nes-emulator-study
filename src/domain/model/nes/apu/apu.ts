@@ -93,8 +93,8 @@ export class Apu {
             this.m_SequencerCounter = ApuTable.ClocksToNextSequence;
 
             if (this.m_SequencerMode === SequencerMode.Mode_5Step) {
-                this.ClockQuarterFrame();
-                this.ClockHalfFrame();
+                this.clockQuarterFrame();
+                this.clockHalfFrame();
             }
 
             if (!this.m_IrqEnabled) {
@@ -127,13 +127,13 @@ export class Apu {
                 this.m_SequencerCounter--;
             }
             else {
-                const [isQuarterFrame, isHalfFrame, isRaiseIrq] = this.GetPhaseStatus();
+                const [isQuarterFrame, isHalfFrame, isRaiseIrq] = this.getPhaseStatus();
 
                 if (isQuarterFrame) {
-                    this.ClockQuarterFrame();
+                    this.clockQuarterFrame();
                 }
                 if (isHalfFrame) {
-                    this.ClockHalfFrame();
+                    this.clockHalfFrame();
                 }
                 if (isRaiseIrq) {
                     // TODO: CpuBus を使って IRQ 割り込みを上げる デバッグ
@@ -141,7 +141,7 @@ export class Apu {
                     this.m_IrqPending = true;
                 }
 
-                this.StepSeqPhase();
+                this.stepSeqPhase();
                 this.m_SequencerCounter = ApuTable.ClocksToNextSequence;
             }
 
@@ -212,29 +212,73 @@ export class Apu {
     // ---- private methods ----
 
     // 各チャンネルたちを駆動するメソッド
-    private ClockQuarterFrame(): void {
-        // TODO 実装。
+    private clockQuarterFrame(): void {
+        this.m_SquareWaveChannel1.ClockQuarterFrame();
+        this.m_SquareWaveChannel2.ClockQuarterFrame();
+        this.m_TriangleWaveChannel.ClockQuarterFrame();
+        this.m_NoiseChannel.ClockQuarterFrame();
     }
 
-    private ClockHalfFrame(): void {
-        // TODO 実装。
+    private clockHalfFrame(): void {
+        this.m_SquareWaveChannel1.ClockHalfFrame();
+        this.m_SquareWaveChannel2.ClockHalfFrame();
+        this.m_TriangleWaveChannel.ClockHalfFrame();
+        this.m_NoiseChannel.ClockHalfFrame();
     }
-
 
     // 内部実装
     // フレームシーケンサによって今なんの仕事をすべきかを返す
-    private GetPhaseStatus(): [boolean, boolean, boolean] {
-        // TODO 実装。
-
-        // TODO 戻り引数の実装なので、以下を返す感じにする。
+    // https://wiki.nesdev.org/w/index.php/APU_Frame_Counter
+    private getPhaseStatus(): [boolean, boolean, boolean] {
         let pIsQuaterFrame = false;
         let pIsHalfFrame = false;
         let pIsRaiseIrq = false;
+
+        if (this.m_SequencerMode === SequencerMode.Mode_4Step) {
+            // m_NextSeqPhase は 0-indexed
+            if (this.m_NextSeqPhase === 1 || this.m_NextSeqPhase === 3) {
+                pIsHalfFrame = true;
+            }
+            else {
+                pIsHalfFrame = false;
+            }
+
+            if (this.m_NextSeqPhase === 3) {
+                pIsRaiseIrq = true;
+            }
+            else {
+                pIsRaiseIrq = false;
+            }
+        }
+        else {
+            // m_NextSeqPhase は 0-indexed
+            if (this.m_NextSeqPhase != 3) {
+                pIsQuaterFrame = true;
+            }
+            else {
+                pIsQuaterFrame = false;
+            }
+
+            if (this.m_NextSeqPhase === 1 || this.m_NextSeqPhase === 4) {
+                pIsHalfFrame = true;
+            }
+            else {
+                pIsHalfFrame = false;
+            }
+            pIsRaiseIrq = false;
+        }
         return [pIsQuaterFrame, pIsHalfFrame, pIsRaiseIrq];
     }
 
     // m_NextSeqPhase を mod Phase数 を考慮しつつ 1進める
-    private StepSeqPhase(): void {
-        // TODO 実装。
+    private stepSeqPhase(): void {
+        if (this.m_SequencerMode === SequencerMode.Mode_4Step) {
+            this.m_NextSeqPhase++;
+            this.m_NextSeqPhase %= 4;
+        }
+        else {
+            this.m_NextSeqPhase++;
+            this.m_NextSeqPhase %= 5;
+        }
     }
 }
