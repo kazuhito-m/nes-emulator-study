@@ -1,6 +1,6 @@
 import { Color } from "@/domain/model/emulator/color";
 import { Emulator } from "@/domain/model/emulator/emulator";
-import { Rect } from "./Rect";
+import { Rect } from "./rect";
 import { Constants } from "@/domain/model/nes/constants";
 
 export class EmulatorTestRunner {
