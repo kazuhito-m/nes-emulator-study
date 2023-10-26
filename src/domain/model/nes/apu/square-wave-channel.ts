@@ -117,33 +117,132 @@ export class SquareWaveChannel {
 
     // APU 全体レジスタ($4015, $4017 の書き込みで反映される値)
     public On4015Write(value: number): void {
-        // TODO 実装。
+        // 最下位1bit
+        let channelEnabled = false;
+
+        if (this.m_IsChannel1) {
+            channelEnabled = (value & 1) === 1;
+        }
+        else {
+            // 1(0-indexed)bit目
+            channelEnabled = ((value >> 1) & 1) === 1;
+        }
+
+        this.m_ChannelEnabled = channelEnabled;
+        if (!this.m_ChannelEnabled) {
+            this.m_LengthCounter = 0;
+        }
     }
 
     public GetStatusBit(): number {
-        // TODO 実装。
+        return this.m_LengthCounter != 0 ? 1 : 0;
     }
 
     // 各 クロック(Apu クラスから呼び出すことを想定)
     public ClockTimer(): void {
-        // TODO 実装。
+        // タイマ(音の周波数 ≒ 高さ を指定するためのもの)をクロック
+        if (this.m_FreqCounter > 0) {
+            this.m_FreqCounter--;
+        }
+        else {
+            this.m_FreqCounter = this.m_FreqTimer;
+            // 波は 8 区分あって、インデックスは mod 8 で計算する(NES on FPGA の 1番目のレジスタによってデューディサイクルが設定されます。 シーケンサはタイマから励起され、次のような波形を出力します。 のとこ)
+            this.m_DutyCounter = (this.m_DutyCounter + 1) & 7;
+        }
     }
 
     public ClockQuarterFrame(): void {
-        // TODO 実装。
+        // コメントはだいたい NES on FPGA に準拠
+        // フレームシーケンサによって励起されるとき、 最後のクロック以降チャンネルの4番目のレジスタへの書き込みがあった場合、 カウンタへ$Fをセットし、分周器へエンベロープ周期をセットします
+        if (this.m_DecayResetFlag) {
+            this.m_DecayResetFlag = false;
+            this.m_DecayHiddenVol = 0xf;
+
+            // decay_counter == エンベロープ周期(分周器でつかうもの)
+            // この if にはいるときの1回 + else の時が dacay_V 回なので、周期は decay_v+1になるよね(NES on FPGA)
+            this.m_DecayCounter = this.m_DecayV;
+        }
+        else {
+            // そうでなければ、分周器を励起します。
+            // カウンタ = decay_hidden_vol であってる？(たぶんあってると思う)
+            // 特定条件でカウンタの値が volume になるからこの名前なのかも。
+            if (this.m_DecayCounter > 0) {
+                this.m_DecayCounter--;
+            }
+            else {
+                this.m_DecayCounter = this.m_DecayV;
+                // 分周器が励起されるとき、カウンタがゼロでなければデクリメントします
+                if (this.m_DecayHiddenVol > 0) {
+                    this.m_DecayHiddenVol--;
+                }
+                else if (this.m_DecayLoop) {
+                    // カウンタが0で、ループフラグがセットされているならカウンタへ$Fをセットします。
+                    this.m_DecayHiddenVol = 0xf;
+                }
+            }
+        }
     }
 
     public ClockHalfFrame(): void {
-        // TODO 実装。
+        // NES on FPGA でいうところのスイープユニット
+        // $4001 書き込みで sweep_reload がたつ(NES on FPGA と食い違ってる？)
+        // TODO: 裏取り だけど、 sweep のレジスタは $4001 なので、これであってる気もする
+        if (this.m_SweepReload) {
+            this.m_SweepCounter = this.m_SweepTimer;
+            this.m_SweepReload = false;
+        }
+        else if (this.m_SweepCounter > 0) {
+            // 分周器がクロックを出してないならなんもしない
+            this.m_SweepCounter--;
+        }
+        else {
+            // 分周器のカウンタをもとにもどす
+            this.m_SweepCounter = this.m_SweepTimer;
+
+            // NES on FPGA において、
+            // 「isSweepForcingSilence は もしチャンネルの周期が8未満か、$7FFより大きくなったなら、スイープを停止し、 チャンネルを無音化します。」
+            // にあたる処理
+            if (this.m_SweepEnabled && !this.isSweepForcingSilence()) {
+                if (this.m_SweepNegate) {
+                    const isChannel1Bit = this.m_IsChannel1 ? 1 : 0;
+                    // this.m_SweepShift は $4001 の下位3bit
+                    // モードによって適切な方法で周波数 = 音階を更新
+                    this.m_FreqTimer -= (this.m_FreqTimer >> this.m_SweepShift) + isChannel1Bit;
+                }
+                else {
+                    this.m_FreqTimer += (this.m_FreqTimer >> this.m_SweepShift);
+                }
+            }
+        }
+
+        // 長さカウンタのクロック生成(NES on FPGA の l)
+        if (this.m_LengthEnabled && this.m_LengthCounter > 0) {
+            this.m_LengthCounter--;
+        }
     }
 
     // 出力
     public GetOutPut(): number {
-        // TODO 実装。
+        if (!(this.m_DutyTable[this.m_DutyCounter]
+            && this.m_LengthCounter != 0
+            && !this.isSweepForcingSilence())) return 0;
+
+        if (this.m_DecayEnabled) {
+            // decay 有効 or not は $4000 の 4 bit 目できまる
+            return this.m_DecayHiddenVol;
+        }
+        else {
+            // decay_V は $4000 の下位4bit(0123bit目)できまる4bitのあたい
+            // NES on FPGA  エンベロープジェネレータ の
+            // チャンネルのボリューム出力として、 エンベロープ無効フラグがセットされているなら、 エンベロープ周期のnをそのまま出力します。 クリアされているならカウンタの値を出力します相当
+            // 結局、エンベロープ無効なら $4000 の下位 4 bit がボリュームになって、有効ならカウンタの値 = decay_hidden_vol がボリュームになるとのこと
+            return this.m_DecayV;
+        }
     }
 
     // 内部実装用メソッドたち
-    private IsSweepForcingSilence(): boolean {
-        // TODO 実装。
+    private isSweepForcingSilence(): boolean {
+        return this.m_FreqTimer < 8 // チャンネルの周期が8未満
+            || (!this.m_SweepNegate && (this.m_FreqTimer + (this.m_FreqTimer >> this.m_SweepShift) >= 0x800));
     }
 }
