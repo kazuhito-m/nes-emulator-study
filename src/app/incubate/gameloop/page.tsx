@@ -4,9 +4,12 @@ import * as React from 'react';
 import { useState } from 'react';
 import { Box, Button, Grid, Paper, Table, TableBody, TableCell, TableHead, TableRow, TextField } from '@mui/material';
 import { OscillatorUseSetInterval } from './osclilator/oscillator-use-setinterval';
+import { Oscillator } from './osclilator/oscillatori';
+import { OscillatorUseRequestAnimFrame } from './osclilator/oscillator-use-requestanimframe';
 
-let oscillator = {} as OscillatorUseSetInterval;
-if (typeof window !== 'undefined') oscillator = new OscillatorUseSetInterval(window);
+let oscillator = {} as Oscillator;
+// if (typeof window !== 'undefined') oscillator = new OscillatorUseSetInterval(window);
+if (typeof window !== 'undefined') oscillator = new OscillatorUseRequestAnimFrame(window);
 
 const togleText = ['start', 'stop'];
 
