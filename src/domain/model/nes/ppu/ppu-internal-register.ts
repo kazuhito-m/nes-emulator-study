@@ -111,7 +111,6 @@ export class PpuInternalRegister {
     }
 
     public getCoarseX(target: PpuInternalRegistertarget): number {
-        // TODO 実装。以下は仮。
         const mask = PpuInternalRegister.COARSE_X_MASK;
         if (target === PpuInternalRegistertarget.PpuInternalRegistertarget_t)
             return this.t & mask;
