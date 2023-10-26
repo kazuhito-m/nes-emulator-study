@@ -1,11 +1,12 @@
 "use client"
 
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, createRef } from 'react';
 import { Box, Button, Grid, Paper, Table, TableBody, TableCell, TableHead, TableRow, TextField, InputLabel, Select, MenuItem, SelectChangeEvent, FormControl } from '@mui/material';
 import { Oscillator } from './osclilator/oscillatori';
 import { OscillatorUseRequestAnimationFrame } from './osclilator/oscillator-use-requestanimationframe';
 import { OscillatorUseSetInterval } from './osclilator/oscillator-use-setinterval';
+import { EmulatorTestRunner } from './render/emulator-test-runner';
 
 const DEFAULT_FPS = '60';
 const BUTTON_TOGGLE_TEXT = ['start', 'stop'];
@@ -16,11 +17,8 @@ if (typeof window !== 'undefined') {
   oscillators["setInterval"] = new OscillatorUseSetInterval(window);
 }
 
-const processingOneFrame = (): void => {
-  console.log('processing one frame !');
-}
-
 export default function Page() {
+  const canvasRef = createRef<HTMLCanvasElement>();
   const [fpsText, fpsTextSet] = useState('');
   const [countText, countTextSet] = useState('');
   const [inputFpsText, inputFpsTextSet] = useState(DEFAULT_FPS);
@@ -49,7 +47,12 @@ export default function Page() {
     const oscillator = oscillators[oscillationAlgo];
 
     if (isLooping) oscillator.stop()
-    else oscillator.start(inputFps, processingOneFrame, watchFps);
+    else {
+      const canvas = canvasRef.current;
+      if (!canvas) { alert('キャンバスが首都出来ませんでした。処理は行いません。'); return; }
+      const runner = new EmulatorTestRunner(canvas);
+      oscillator.start(inputFps, () => runner.stepFrame(), watchFps);
+    }
 
     isLoopingSet(!isLooping);
     buttonTextSet(BUTTON_TOGGLE_TEXT[isLooping ? 0 : 1]);
@@ -68,7 +71,7 @@ export default function Page() {
             }}
           >
             <div>Game Monitor</div>
-            <canvas width="512" height="480"></canvas>
+            <canvas ref={canvasRef} width="512" height="480"></canvas>
           </Paper>
         </Grid>
         <Grid item xs={12} md={3} lg={3}>

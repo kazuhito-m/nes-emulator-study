@@ -10,22 +10,27 @@ export class EmulatorTestRunner {
         private readonly canvas: HTMLCanvasElement
     ) {
         const testRomBinary = this.loadHelloWorldSampleNesRom();
-        this.emulator = new Emulator(testRomBinary, testRomBinary.length, (v) => { });
+        // this.emulator = new Emulator(testRomBinary, testRomBinary.length, (v) => { });
 
         this.clearCanvasOf(this.generateEmptyColorMatrix(),
             canvas.getContext("2d") as CanvasRenderingContext2D,
             EmulatorTestRunner.DISPLAY_RATIO);
     }
 
-    private emulator: Emulator;
+    // private emulator: Emulator;
 
     public stepFrame(): void {
-        const emu = this.emulator;
+        // const emu = this.emulator;
+
+        // const matrix = this.generateEmptyColorMatrix();
+
+        // emu.stepFrame();
+        // emu.getPictureColor(matrix);
+
+        // TODO 以下はデバッグ用。
 
         const matrix = this.generateEmptyColorMatrix();
-
-        emu.stepFrame();
-        emu.getPictureColor(matrix);
+        for (let i = 0; i < matrix.length; i++) matrix[i] = new Array(Constants.PPU_OUTPUT_X).fill(Color.BLACK);
 
         this.rendering(matrix, EmulatorTestRunner.DISPLAY_RATIO);
     }
