@@ -5,6 +5,12 @@ import { InterruptType } from "../cpu/interrupt-type";
 import { System } from "../system"
 import { PpuSystem } from "./ppu-system";
 
+/**
+ * PPU から見えるメモリ空間に基づいてアクセスするクラス、PPU <-> カセット、 VRAM へのバス。
+ * CPU -> PPU は CpuBus に持たせる。
+ * 
+ * TODO: 本当は Cassette だけへの依存でいいのに System 全体への依存になってしまっているのを直す。
+ */
 export class PpuBus {
     private m_pSystem: System;
     private m_pPpuSystem: PpuSystem;
