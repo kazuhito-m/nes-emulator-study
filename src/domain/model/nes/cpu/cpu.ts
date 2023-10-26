@@ -19,7 +19,7 @@ export class Cpu {
     // CPU BUS 経由でシステムを読み書きする
     private m_pCpuBus: CpuBus;
 
-    constructor(pCpuBus: CpuBus) {
+    constructor(this.PCpuBus: CpuBus) {
         this.m_pCpuBus = pCpuBus;
     }
 
@@ -1145,74 +1145,179 @@ export class Cpu {
     }
 
     public interrupt(type: InterruptType): void {
+        const m_pCpuBus = this.m_pCpuBus;
 
+        // nested interrupt が許されるのは RESET と NMI のみ
+        const nested = this.GetInterruptFlag();
+
+        if (nested && (type == InterruptType.BRK || type == InterruptType.IRQ)) return;
+
+        let lower = 0;
+        let upper = 0;
+
+        // 割り込みフラグをたてる
+        this.SetInterruptFlag(true);
+
+        switch (type) {
+            case InterruptType.NMI:
+                {
+                    this.SetBreakFlag(false);
+                    this.PushStack((this.PC >> 8));
+                    this.PushStack(this.PC);
+
+                    // NMI, IRQ のときは 5, 4 bit 目を 10にする
+                    let pushData = this.P & 0b11001111;
+                    pushData |= (1 << 5);
+                    this.PushStack(pushData);
+
+                    lower = m_pCpuBus.readByte(0xFFFA);
+                    upper = m_pCpuBus.readByte(0xFFFB);
+
+                    this.PC = lower | (upper << 8);
+                    break;
+                }
+            case InterruptType.RESET:
+                {
+                    lower = m_pCpuBus.readByte(0xFFFC);
+                    upper = m_pCpuBus.readByte(0xFFFD);
+
+                    // https://www.pagetable.com/?p=410
+                    this.SP = 0xFD;
+
+                    this.PC = lower | (upper << 8);
+                    break;
+                }
+            case InterruptType.IRQ:
+                {
+                    this.SetBreakFlag(false);
+                    this.PushStack((this.PC >> 8));
+                    this.PushStack(this.PC);
+
+                    // NMI, IRQ のときは 5, 4 bit 目を 10にする
+                    let pushData = this.P & 0b11001111;
+                    pushData |= (1 << 5);
+                    this.PushStack(pushData);
+
+                    lower = m_pCpuBus.readByte(0xFFFE);
+                    upper = m_pCpuBus.readByte(0xFFFF);
+
+                    this.PC = lower | (upper << 8);
+                    break;
+                }
+            case InterruptType.BRK:
+                {
+                    this.SetBreakFlag(true);
+                    this.PC++;
+
+                    // PC push
+                    this.PushStack((this.PC >> 8));
+                    this.PushStack(this.PC);
+
+                    // BRK のときは 5, 4 bit目を 11 にするので雑に OR するだけでいい
+                    let pushData = this.P;
+                    pushData |= 0b110000;
+                    this.PushStack(pushData);
+
+                    lower = m_pCpuBus.readByte(0xFFFE);
+                    upper = m_pCpuBus.readByte(0xFFFF);
+
+                    this.PC = lower | (upper << 8);
+                    break;
+                }
+            default:
+                break;
+        }
     }
 
     // nestest.nes 用に PC を外部からセットできる関数を公開する
     public setPCForDebug(newPC: number): void {
-
+        this.PC = newPC;
     }
 
     // ---- private methods ----
 
     // ステータスフラグをいじる関数
     private SetNegativeFlag(flag: boolean): void {
-        // TODO 実装。
+        const bit = 1 << 7;
+        if (flag) this.P |= bit;
+        else this.P &= ~bit;
     }
 
+    // TODO 代表関数 setFlag() みたいなんを作り、まとめる。
+
     private SetOverflowFlag(flag: boolean): void {
-        // TODO 実装。
+        const bit = 1 << 6;
+        if (flag) this.P |= bit;
+        else this.P &= ~bit;
     }
 
     private SetBreakFlag(flag: boolean): void {
-        // TODO 実装。
+        if (flag) {
+            this.P |= (1 << 4);
+        }
+        else {
+            this.P &= ~(1 << 4);
+        }
     }
 
     private SetDecimalFlag(flag: boolean): void {
-        // TODO 実装。
+        if (flag) {
+            this.P |= (1 << 3);
+        }
+        else {
+            this.P &= ~(1 << 3);
+        }
     }
 
     private SetInterruptFlag(flag: boolean): void {
-        // TODO 実装。
+        if (flag) {
+            this.P |= (1 << 2);
+        }
+        else {
+            this.P &= ~(1 << 2);
+        }
     }
 
     private SetZeroFlag(flag: boolean): void {
-        // TODO 実装。
+        if (flag) {
+            this.P |= (1 << 1);
+        }
+        else {
+            this.P &= ~(1 << 1);
+        }
     }
-
     private SetCarryFlag(flag: boolean): void {
-        // TODO 実装。
+        if (flag) {
+            this.P |= 1;
+        }
+        else {
+            this.P &= ~(1);
+        }
     }
 
+    // TODO GetFlagみたいなのを作ってまとめる。
 
-    private GetNegativeFlag(): boolean {
-        // TODO 実装。
+    private GetNegativeFlag() {
+        return (this.P & (1 << 7)) == (1 << 7);
     }
-
-    private GetOverflowFlag(): boolean {
-        // TODO 実装。
+    private GetOverflowFlag() {
+        return (this.P & (1 << 6)) == (1 << 6);
     }
-
-    private GetBreakFlag(): boolean {
-        // TODO 実装。
+    private GetBreakFlag() {
+        return (this.P & (1 << 4)) == (1 << 4);
     }
-
-    private GetDecimalFlag(): boolean {
-        // TODO 実装。
+    private GetDecimalFlag() {
+        return (this.P & (1 << 3)) == (1 << 3);
     }
-
-    private GetInterruptFlag(): boolean {
-        // TODO 実装。
+    private GetInterruptFlag() {
+        return (this.P & (1 << 2)) == (1 << 2);
     }
-
-    private GetZeroFlag(): boolean {
-        // TODO 実装。
+    private GetZeroFlag() {
+        return (this.P & (1 << 1)) == (1 << 1);
     }
-
-    private GetCarryFlag(): boolean {
-        // TODO 実装。
+    private GetCarryFlag() {
+        return (this.P & 1) == 1;
     }
-
 
     // アドレッシングモードによってオペランドのアドレスをフェッチし、アドレスと追加クロックサイクルを返す
     // 以下は、アドレスを対象にする命令(例: ストア).FetchAddr, 値(参照を剥がして値にするものも含む)を対象にする命令(例: ADC).FetchArg と使い分ける
