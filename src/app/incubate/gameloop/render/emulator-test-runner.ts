@@ -4,33 +4,28 @@ import { Rect } from "./rect";
 import { Constants } from "@/domain/model/nes/constants";
 
 export class EmulatorTestRunner {
-    private static readonly DISPLAY_RATIO = 2;  // canvasのサイズはドット数の2倍pixelであること決め打ち。
+    private emulator: Emulator;
 
     constructor(
         private readonly canvas: HTMLCanvasElement
     ) {
         const testRomBinary = this.loadHelloWorldSampleNesRom();
-        // this.emulator = new Emulator(testRomBinary, testRomBinary.length, (v) => { });
+        this.emulator = new Emulator(testRomBinary, testRomBinary.length, (v) => { });
 
         this.clearCanvasOf(this.generateEmptyColorMatrix(),
             canvas.getContext("2d") as CanvasRenderingContext2D,
             EmulatorTestRunner.DISPLAY_RATIO);
     }
 
-    // private emulator: Emulator;
+    private static readonly DISPLAY_RATIO = 2;  // canvasのサイズはドット数の2倍pixelであること決め打ち。
 
     public stepFrame(): void {
-        // const emu = this.emulator;
-
-        // const matrix = this.generateEmptyColorMatrix();
-
-        // emu.stepFrame();
-        // emu.getPictureColor(matrix);
-
-        // TODO 以下はデバッグ用。
+        const emu = this.emulator;
 
         const matrix = this.generateEmptyColorMatrix();
-        for (let i = 0; i < matrix.length; i++) matrix[i] = new Array(Constants.PPU_OUTPUT_X).fill(Color.BLACK);
+
+        emu.stepFrame();
+        emu.getPictureColor(matrix);
 
         this.rendering(matrix, EmulatorTestRunner.DISPLAY_RATIO);
     }
