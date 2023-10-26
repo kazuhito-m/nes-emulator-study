@@ -2,10 +2,10 @@
 
 import * as React from 'react';
 import { useState } from 'react';
-import { Box, Button, FormControl, FormControlLabel, FormLabel, Grid, Paper, Radio, RadioGroup, Table, TableBody, TableCell, TableHead, TableRow, TextField } from '@mui/material';
-import { OscillatorUseSetInterval } from './osclilator/oscillator-use-setinterval';
+import { Box, Button, Grid, Paper, Table, TableBody, TableCell, TableHead, TableRow, TextField, InputLabel, Select, MenuItem, SelectChangeEvent, FormControl } from '@mui/material';
 import { Oscillator } from './osclilator/oscillatori';
 import { OscillatorUseRequestAnimationFrame } from './osclilator/oscillator-use-requestanimationframe';
+import { OscillatorUseSetInterval } from './osclilator/oscillator-use-setinterval';
 
 const oscillators: { [index: string]: Oscillator } = {};
 if (typeof window !== 'undefined') {
@@ -20,7 +20,12 @@ export default function Page() {
   const [countText, countTextSet] = useState('');
   const [inputFpsText, inputFpsTextSet] = useState('60');
   const [isLooping, isLoopingSet] = useState(false);
-  const [oscillationAlgo, oscillationAlgoSet] = React.useState(Object.keys(oscillators)[1]);
+  const [oscillationAlgo, oscillationAlgoSet] = useState('requestAnimationFrame');
+
+  const handleChangeOscillationAlgo = (event: SelectChangeEvent) => {
+    console.log('select! ' + event.target.value);
+    oscillationAlgoSet(event.target.value as string);
+  };
 
   const watchFps = (fps: number, count: number) => {
     fpsTextSet(fps.toFixed(3));
@@ -87,18 +92,21 @@ export default function Page() {
                 </TableRow>
                 <TableRow >
                   <TableCell>
-                    <FormControl>
-                      <FormLabel id="demo-controlled-radio-buttons-group">Oscilation Algolism</FormLabel>
-                      <RadioGroup
-                        aria-labelledby="demo-controlled-radio-buttons-group"
-                        name="controlled-radio-buttons-group"
+
+                    <FormControl fullWidth>
+                      <InputLabel id="demo-simple-select-label">Oscillation Algolism</InputLabel>
+                      <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
                         value={oscillationAlgo}
-                        onChange={(e) => oscillationAlgoSet(e.target.value)}
+                        label="Age"
+                        onChange={handleChangeOscillationAlgo}
                       >
-                        <FormControlLabel value="requestAnimaFrame" control={<Radio />} label="requestAnimationFrame" key="requestAnimationFrame" />
-                        <FormControlLabel value="setInterval" control={<Radio />} label="setInterval" key="setInterval" />
-                      </RadioGroup>
+                        <MenuItem value="requestAnimationFrame">requestAnimationFrame</MenuItem>
+                        <MenuItem value="setInterval">setInterval</MenuItem>
+                      </Select>
                     </FormControl>
+
                   </TableCell>
                 </TableRow>
               </TableBody>
