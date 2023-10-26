@@ -7,9 +7,11 @@ import { Oscillator } from './osclilator/oscillatori';
 import { OscillatorUseRequestAnimationFrame } from './osclilator/oscillator-use-requestanimationframe';
 import { OscillatorUseSetInterval } from './osclilator/oscillator-use-setinterval';
 
+const DEFAULT_FPS = '60';
+
 const oscillators: { [index: string]: Oscillator } = {};
 if (typeof window !== 'undefined') {
-  oscillators["requestAnimaFrame"] = new OscillatorUseRequestAnimationFrame(window);
+  oscillators["requestAnimationFrame"] = new OscillatorUseRequestAnimationFrame(window);
   oscillators["setInterval"] = new OscillatorUseSetInterval(window);
 }
 
@@ -18,12 +20,12 @@ const togleText = ['start', 'stop'];
 export default function Page() {
   const [fpsText, fpsTextSet] = useState('');
   const [countText, countTextSet] = useState('');
-  const [inputFpsText, inputFpsTextSet] = useState('60');
+  const [inputFpsText, inputFpsTextSet] = useState(DEFAULT_FPS);
   const [isLooping, isLoopingSet] = useState(false);
   const [oscillationAlgo, oscillationAlgoSet] = useState('requestAnimationFrame');
 
   const handleChangeOscillationAlgo = (event: SelectChangeEvent) => {
-    console.log('select! ' + event.target.value);
+    inputFpsTextSet(DEFAULT_FPS);;
     oscillationAlgoSet(event.target.value as string);
   };
 
@@ -86,7 +88,7 @@ export default function Page() {
                 </TableRow >
                 <TableRow >
                   <TableCell>
-                    <TextField label="FPS" type="number" disabled={isLooping}
+                    <TextField label="FPS" type="number" disabled={isLooping || oscillationAlgo === 'requestAnimationFrame'}
                       value={inputFpsText} onChange={(e) => inputFpsTextSet(e.target.value)} />
                   </TableCell>
                 </TableRow>
