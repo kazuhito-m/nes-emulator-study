@@ -1,4 +1,4 @@
-import { Mirroring } from "../cassette/cassette";
+import { Mirroring } from "../cassette/mirroring";
 import { Constants } from "../constants";
 import { Cpu } from "../cpu/cpu";
 import { InterruptType } from "../cpu/interrupt-type";
