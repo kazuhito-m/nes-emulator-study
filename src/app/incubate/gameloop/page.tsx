@@ -49,13 +49,13 @@ export default function Page() {
     if (isLooping) oscillator.stop()
     else {
       const canvas = canvasRef.current;
-      if (!canvas) { alert('キャンバスが取得出来ませんでした。処理は行いません。'); return; }
+      if (!canvas) { alert('キャンバスが取得出来ませんでした。処理は実行しません。'); return; }
       try {
         const runner = new EmulatorTestRunner(canvas);
         oscillator.start(inputFps, () => runner.stepFrame(), watchFps);
       } catch (e) {
         console.log(e);
-        alert(`${e} 処理は行いません。`);
+        alert(`${e}\nエラーが発生したため、処理は実行しません。`);
         return;
       }
     }
