@@ -1,4 +1,3 @@
-import { SampleNesFile } from "@/app/incubate/gameloop/render/sample-nes-file";
 import fs from "fs";
 import path from "path";
 
@@ -14,6 +13,8 @@ describe("emulator-test-runner.test.ts の単体テスト", () => {
         expect(testFileContents.byteLength).toBe(40976);
         [78, 69, 83, 26, 2, 1, 1, 0, 0, 0].forEach((exp, i) =>
             expect(testFileContents.at(i)).toBe(exp));
+
+        // FIXME 結局、下はGUIがある時でないとテストできない。いつか動かせるように。
 
         // const sut = new SampleNesFile();
 
