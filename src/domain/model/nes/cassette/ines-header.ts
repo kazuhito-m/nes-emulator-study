@@ -31,7 +31,7 @@ export class INESHeader {
     }
 
     public initializeOf(bytes: number[]): void {
-        this.m_Magic = bytes.slice(3);
+        this.m_Magic = bytes.slice(0, 4);
         this.m_PrgRomSize = bytes[4];
         this.m_ChrRomSize = bytes[5];
         this.m_Flags6 = bytes[6];

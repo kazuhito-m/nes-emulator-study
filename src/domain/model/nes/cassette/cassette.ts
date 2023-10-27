@@ -18,7 +18,7 @@ export class Cassette {
     // ROM のバイナリを書き込んだバッファとそのサイズを引数にとって初期化
     public initialize(pBuffer: number[], bufferSize: number): void {
         // iNES ヘッダーを読み込み
-        if (bufferSize >= 16) throw new Error('Header size invalid.');
+        if (bufferSize < 16) throw new Error('Header size invalid.');
         this.m_Header.initializeOf(pBuffer);
 
         // マジックナンバー 確認
