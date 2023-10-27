@@ -1,5 +1,3 @@
-const { ContentCopy } = require("@mui/icons-material");
-
 module.exports = function (source, two, three) {
     const filename = 'ここはデタラメでええやろ.json';
 
