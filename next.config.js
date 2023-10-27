@@ -4,20 +4,18 @@ const path = require('path');
 const nextConfig = {
     webpack(config, options) {
         config.module.rules.push({
-            // test: /\.(nes)$/,
-            //     type: "asset/inline",
-            // }, {
-            //     test: /\.(special)$/,
-            //     use: ['m-c-loader'],
+            test: /\.(nes)$/,
+            type: 'asset/resource'
         }, {
             test: /\.(special)$/,
-            type: 'asset/resource'
+            use: ['c-i-loader'],
         }, {
             test: /\.json$/,
             type: 'json'
         });
 
-        config.resolveLoader.alias['m-c-loader'] = path.resolve(__dirname, 'MyCustomLoader.js');
+        config.resolveLoader.alias['c-i-loader'] =
+            path.resolve(__dirname, 'custom/webpack-loader/custom-import-loader.js');
 
         return config;
     },

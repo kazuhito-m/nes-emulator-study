@@ -1,3 +1,14 @@
+/**
+ * next.jsの"import"でファイルを読み出す際にカスタマイズできるloeder。
+ * 
+ * next.config.jsのWebPackエントリ(あるいは.babelrc/webpack.config.js)との
+ * 組み合わせで、読み取り時に加工したものをimportでとりこめる。
+ * 
+ * しかし、本当にほしかったのは「ファイルのバイナリ」だが、
+ * この機能は「来た時点でStringになってる」ため、意味があまりない。
+ * が、これを突き止めるのに多大な労力が掛かったので、サンプルとして残しておく。
+ * https://devdocs.io/webpack~5/configuration/module#rule
+ */
 module.exports = function (source, two, three) {
     const filename = 'ここはデタラメでええやろ.json';
 
