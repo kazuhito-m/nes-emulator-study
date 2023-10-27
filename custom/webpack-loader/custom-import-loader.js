@@ -7,6 +7,8 @@
  * しかし、本当にほしかったのは「ファイルのバイナリ」だが、
  * この機能は「来た時点でStringになってる」ため、意味があまりない。
  * が、これを突き止めるのに多大な労力が掛かったので、サンプルとして残しておく。
+ *
+ * https://runebook.dev/ja/docs/webpack/configuration/resolve#resolveloader
  * https://devdocs.io/webpack~5/configuration/module#rule
  */
 module.exports = function (source, two, three) {
