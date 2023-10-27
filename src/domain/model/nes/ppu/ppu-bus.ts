@@ -25,8 +25,9 @@ export class PpuBus {
 
     // パレットテーブルの "下"にある nametableのミラーが PPU の内部バッファに読まれるのでそれに対応する
     public readByte(addr: number, isPpuBuffering: boolean = true): number {
-        if (!isPpuBuffering) return this.readByteNonBuffer(addr);
-        if (addr < Constants.PALETTE_BASE) return this.readByteNonBuffer(addr);
+        if (!isPpuBuffering || addr < Constants.PALETTE_BASE) {
+            return this.readByteNonBuffer(addr);
+        }
 
         // パレット領域の代わりに nametable 読み出し
         const offset = addr - Constants.NAMETABLE_MIRROR_BASE;
