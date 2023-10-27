@@ -2,12 +2,9 @@ import { Color } from "@/domain/model/emulator/color";
 import { Emulator } from "@/domain/model/emulator/emulator";
 import { Rect } from "./rect";
 import { Constants } from "@/domain/model/nes/constants";
-import { SampleNesFile } from "./sample-nes-file";
 
 export class EmulatorTestRunner {
     private emulator: Emulator;
-
-    private sampleRom = new SampleNesFile();
 
     constructor(
         private readonly canvas: HTMLCanvasElement,
