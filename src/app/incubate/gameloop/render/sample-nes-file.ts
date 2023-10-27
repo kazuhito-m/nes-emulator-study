@@ -6,10 +6,6 @@ export class SampleNesFile {
         console.log('importしてみた結果。');
         console.log(helloWorldRomFile);
         console.log(typeof helloWorldRomFile);
-        console.log('requireしてみた結果。');
-        const file = require('./sample1.nes');
-        console.log(typeof file);
-        console.log(file);
         return [0];
     }
 }
