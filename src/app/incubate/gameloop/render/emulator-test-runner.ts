@@ -2,15 +2,17 @@ import { Color } from "@/domain/model/emulator/color";
 import { Emulator } from "@/domain/model/emulator/emulator";
 import { Rect } from "./rect";
 import { Constants } from "@/domain/model/nes/constants";
-import helloWorldRomFile from './sample1.nes';
+import { SampleNesFile } from "./sample-nes-file";
 
 export class EmulatorTestRunner {
     private emulator: Emulator;
 
+    private sampleRom = new SampleNesFile();
+
     constructor(
         private readonly canvas: HTMLCanvasElement
     ) {
-        const testRomBinary = this.loadHelloWorldSampleNesRom();
+        const testRomBinary = this.sampleRom.readBytes();
         this.emulator = new Emulator(testRomBinary, testRomBinary.length, (v) => { });
 
         this.clearCanvasOf(this.generateEmptyColorMatrix(),
@@ -29,18 +31,6 @@ export class EmulatorTestRunner {
         emu.getPictureColor(matrix);
 
         this.rendering(matrix, EmulatorTestRunner.DISPLAY_RATIO);
-    }
-
-    private loadHelloWorldSampleNesRom(): number[] {
-        // TODO 実装。以下はダミー。
-        console.log('importしてみた結果。');
-        console.log(helloWorldRomFile);
-        console.log(typeof helloWorldRomFile);
-        console.log('requireしてみた結果。');
-        const file = require('./sample1.nes');
-        console.log(typeof file);
-        console.log(file);
-        return [0];
     }
 
     private rendering(matrix: Color[][], ratio: number): CanvasRenderingContext2D {
