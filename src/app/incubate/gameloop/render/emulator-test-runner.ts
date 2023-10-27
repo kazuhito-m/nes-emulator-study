@@ -19,6 +19,8 @@ export class EmulatorTestRunner {
 
     private static readonly DISPLAY_RATIO = 2;  // canvasのサイズはドット数の2倍pixelであること決め打ち。
 
+    private frameCount = 0;
+
     public stepFrame(): void {
         const emu = this.emulator;
 
@@ -27,7 +29,11 @@ export class EmulatorTestRunner {
         emu.stepFrame();
         emu.getPictureColor(matrix);
 
+        // matrix.forEach(i => console.log(i.map(j => `[${j.Red},${j.Green},${j.Blue}]`).join('')));
+
         this.rendering(matrix, EmulatorTestRunner.DISPLAY_RATIO);
+
+        // console.log(`${++this.frameCount} 回目のフレーム処理完了。`);
     }
 
     private rendering(matrix: Color[][], ratio: number): CanvasRenderingContext2D {
@@ -74,7 +80,7 @@ export class EmulatorTestRunner {
             if (rect !== null) rects.push(rect);
         }
 
-        console.log("rect:" + rects.length + ", valueCount:" + debugValueCount);
+        // console.log("rect:" + rects.length + ", valueCount:" + debugValueCount);
 
         this.clearCanvasOf(matrix, context, ratio);
 
@@ -87,7 +93,7 @@ export class EmulatorTestRunner {
 
     private generateEmptyColorMatrix(): Color[][] {
         const result = new Array(Constants.PPU_OUTPUT_Y);
-        for (let i = 0; i < result.length; i++) result[i] = new Array(Constants.PPU_OUTPUT_X).fill(0);
+        for (let i = 0; i < result.length; i++) result[i] = new Array(Constants.PPU_OUTPUT_X).fill(Color.BLACK);
         return result;
     }
 
