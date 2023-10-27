@@ -7,6 +7,7 @@ import { Oscillator } from './osclilator/oscillatori';
 import { OscillatorUseRequestAnimationFrame } from './osclilator/oscillator-use-requestanimationframe';
 import { OscillatorUseSetInterval } from './osclilator/oscillator-use-setinterval';
 import { EmulatorTestRunner } from './render/emulator-test-runner';
+import { SampleNesFile } from './render/sample-nes-file';
 
 const DEFAULT_FPS = '60';
 const BUTTON_TOGGLE_TEXT = ['start', 'stop'];
@@ -37,7 +38,7 @@ export default function Page() {
 
   const [buttonText, buttonTextSet] = useState(BUTTON_TOGGLE_TEXT[0]);
 
-  const handleRunEmulator = () => {
+  const handleRunEmulator = async (): Promise<void> => {
     const inputFps = parseInt(inputFpsText, 10);
     if (!inputFps || inputFps <= 0) {
       alert('fpsの書式が不正です。');
@@ -51,7 +52,9 @@ export default function Page() {
       const canvas = canvasRef.current;
       if (!canvas) { alert('キャンバスが取得出来ませんでした。処理は実行しません。'); return; }
       try {
-        const runner = new EmulatorTestRunner(canvas);
+        const sampleNesFile = new SampleNesFile();
+        const bytes = await sampleNesFile.readBytes();
+        const runner = new EmulatorTestRunner(canvas, bytes);
         oscillator.start(inputFps, () => runner.stepFrame(), watchFps);
       } catch (e) {
         console.log(e);

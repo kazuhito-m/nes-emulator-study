@@ -1,3 +1,5 @@
+const { ContentCopy } = require("@mui/icons-material");
+
 module.exports = function (source, two, three) {
     const filename = 'ここはデタラメでええやろ.json';
 
@@ -10,9 +12,19 @@ module.exports = function (source, two, three) {
 
     console.log('もともと、入ってきたソース:');
     console.log(typeof source);
-    console.log(source);
+    console.log('元の文字列での文字数: ' + source.length);
+    // console.log(source);
     console.log(two);
     console.log(three);
 
-    return "別に、ふっつーの文字列でも返すことは可能。";
+    const contexts = Buffer.from(source);
+
+    console.log('byteLength:' + contexts.byteLength)
+    for (let i = 0; i < 10; i++) {
+        console.log(i + ':' + contexts.at(i));
+    }
+
+    // return '{ "text": "別に、ふっつーの文字列でも返すことは可能。" }';
+    // return '{"key":0, "value": 1}';
+    return '{}';
 };

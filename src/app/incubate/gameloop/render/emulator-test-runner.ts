@@ -10,9 +10,9 @@ export class EmulatorTestRunner {
     private sampleRom = new SampleNesFile();
 
     constructor(
-        private readonly canvas: HTMLCanvasElement
+        private readonly canvas: HTMLCanvasElement,
+        testRomBinary: number[],
     ) {
-        const testRomBinary = this.sampleRom.readBytes();
         this.emulator = new Emulator(testRomBinary, testRomBinary.length, (v) => { });
 
         this.clearCanvasOf(this.generateEmptyColorMatrix(),
