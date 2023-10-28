@@ -43,7 +43,7 @@ export class EmulatorTestRunner {
 
         this.renderStopwatch.stop();
 
-        console.log(`${this.emulatorStopwatch.getTotalMeasureCount()} 回目のフレーム処理完了。`);
+        // console.log(`${this.emulatorStopwatch.getTotalMeasureCount()} 回目のフレーム処理完了。`);
     }
 
     private rendering(matrix: Color[][], ratio: number): CanvasRenderingContext2D {
