@@ -43,8 +43,8 @@ export default function Page() {
     const nowStatus: RunnerPerformanceStatus = {
       fps: fps.toFixed(3),
       count: count.toString(),
-      emurator1FProccessAverageTimeMs: runner.emulatorStopwatch.averageMs().toFixed(5),
-      render1FProccessAverageTimeMs: runner.renderStopwatch.averageMs().toFixed(5)
+      emurator1FProccessAverageTimeMs: runner.emulatorStopwatch.averageMs().toFixed(3),
+      render1FProccessAverageTimeMs: runner.renderStopwatch.averageMs().toFixed(3)
     }
     performanceStatusSet(nowStatus);
   }
