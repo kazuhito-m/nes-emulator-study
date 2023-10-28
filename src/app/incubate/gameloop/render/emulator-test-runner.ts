@@ -2,7 +2,7 @@ import { Color } from "@/domain/model/emulator/color";
 import { Emulator } from "@/domain/model/emulator/emulator";
 import { Rect } from "./rect";
 import { Constants } from "@/domain/model/nes/constants";
-import { MeasuringStopwatch } from "../osclilator/measuring-stopwatch";
+import { MeasuringStopwatch } from "../measur/measuring-stopwatch";
 
 export class EmulatorTestRunner {
     private emulator: Emulator;
