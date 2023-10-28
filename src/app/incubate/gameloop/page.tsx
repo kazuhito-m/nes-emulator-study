@@ -20,15 +20,17 @@ if (typeof window !== 'undefined') {
 
 let runner: EmulatorTestRunner;
 
-export default function Page() {
-  let emu
+interface RunnerPerformanceStatus {
+  fps: string;
+  count: string;
+}
 
+export default function Page() {
   const canvasRef = createRef<HTMLCanvasElement>();
-  const [fpsText, fpsTextSet] = useState('');
-  const [countText, countTextSet] = useState('');
   const [inputFpsText, inputFpsTextSet] = useState(DEFAULT_FPS);
   const [isLooping, isLoopingSet] = useState(false);
   const [oscillationAlgo, oscillationAlgoSet] = useState('requestAnimationFrame');
+  const [performanceStatus, performanceStatusSet] = useState<RunnerPerformanceStatus>({} as RunnerPerformanceStatus);
 
   const handleChangeOscillationAlgo = (event: SelectChangeEvent) => {
     inputFpsTextSet(DEFAULT_FPS);;
@@ -36,8 +38,11 @@ export default function Page() {
   };
 
   const watchFps = (fps: number, count: number) => {
-    fpsTextSet(fps.toFixed(3));
-    countTextSet(count.toString());
+    const nowStatus: RunnerPerformanceStatus = {
+      fps: fps.toFixed(3),
+      count: count.toString()
+    }
+    performanceStatusSet(nowStatus);
   }
 
   const [buttonText, buttonTextSet] = useState(BUTTON_TOGGLE_TEXT[0]);
@@ -156,11 +161,11 @@ export default function Page() {
               <TableBody>
                 <TableRow >
                   <TableCell>FPS</TableCell>
-                  <TableCell>{fpsText}</TableCell>
+                  <TableCell>{performanceStatus.fps}</TableCell>
                 </TableRow>
                 <TableRow >
                   <TableCell>Loop Count</TableCell>
-                  <TableCell>{countText}</TableCell>
+                  <TableCell>{performanceStatus.count}</TableCell>
                 </TableRow >
                 <TableRow >
                   <TableCell>Idial Interval(ms)</TableCell>
