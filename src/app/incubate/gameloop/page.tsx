@@ -23,6 +23,7 @@ let runner: EmulatorTestRunner;
 interface RunnerPerformanceStatus {
   fps: string;
   count: string;
+  oneFProccessAverageTimeMs: string,
   emurator1FProccessAverageTimeMs: string,
   render1FProccessAverageTimeMs: string,
 }
@@ -43,6 +44,7 @@ export default function Page() {
     const nowStatus: RunnerPerformanceStatus = {
       fps: fps.toFixed(3),
       count: count.toString(),
+      oneFProccessAverageTimeMs: 'N/A',
       emurator1FProccessAverageTimeMs: runner.emulatorStopwatch.averageMs().toFixed(3),
       render1FProccessAverageTimeMs: runner.renderStopwatch.averageMs().toFixed(3)
     }
@@ -172,6 +174,10 @@ export default function Page() {
                   <TableCell>{performanceStatus.count}</TableCell>
                 </TableRow >
                 <TableRow >
+                  <TableCell>1F Prossess(ms)</TableCell>
+                  <TableCell>{performanceStatus.oneFProccessAverageTimeMs}</TableCell>
+                </TableRow >
+                <TableRow >
                   <TableCell>Emulator 1F Prossess(ms)</TableCell>
                   <TableCell>{performanceStatus.emurator1FProccessAverageTimeMs}</TableCell>
                 </TableRow >
@@ -180,8 +186,12 @@ export default function Page() {
                   <TableCell>{performanceStatus.render1FProccessAverageTimeMs}</TableCell>
                 </TableRow >
                 <TableRow >
-                  <TableCell>Idial Interval(ms)</TableCell>
+                  <TableCell>Idial FPS</TableCell>
                   <TableCell>{inputFpsText}</TableCell>
+                </TableRow >
+                <TableRow >
+                  <TableCell>Idial Interval(ms)</TableCell>
+                  <TableCell>{(inputFpsText) ? (1000 / parseInt(inputFpsText)).toFixed(3) : ''}</TableCell>
                 </TableRow >
               </TableBody>
             </Table>
