@@ -2,6 +2,7 @@ import { Color } from "@/domain/model/emulator/color";
 import { Emulator } from "@/domain/model/emulator/emulator";
 import { Rect } from "./rect";
 import { Constants } from "@/domain/model/nes/constants";
+import { MeasuringStopwatch } from "../osclilator/measuring-stopwatch";
 
 export class EmulatorTestRunner {
     private emulator: Emulator;
@@ -17,23 +18,32 @@ export class EmulatorTestRunner {
             EmulatorTestRunner.DISPLAY_RATIO);
     }
 
-    private static readonly DISPLAY_RATIO = 2;  // canvasのサイズはドット数の2倍pixelであること決め打ち。
+    private readonly emulatorStopwatch = new MeasuringStopwatch(1000);
+    private readonly renderStopwatch = new MeasuringStopwatch(1000);
 
-    private frameCount = 0;
+    private static readonly DISPLAY_RATIO = 2;  // canvasのサイズはドット数の2倍pixelであること決め打ち。
 
     public stepFrame(): void {
         const emu = this.emulator;
 
         const matrix = this.generateEmptyColorMatrix();
 
+        this.emulatorStopwatch.start();
+
         emu.stepFrame();
         emu.getPictureColor(matrix);
 
+        this.emulatorStopwatch.stop();
+
         // matrix.forEach(i => console.log(i.map(j => `[${j.Red},${j.Green},${j.Blue}]`).join('')));
+
+        this.renderStopwatch.start();
 
         this.rendering(matrix, EmulatorTestRunner.DISPLAY_RATIO);
 
-        // console.log(`${++this.frameCount} 回目のフレーム処理完了。`);
+        this.renderStopwatch.stop();
+
+        console.log(`${this.emulatorStopwatch.getTotalMeasureCount()} 回目のフレーム処理完了。`);
     }
 
     private rendering(matrix: Color[][], ratio: number): CanvasRenderingContext2D {

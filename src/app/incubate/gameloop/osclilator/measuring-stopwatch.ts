@@ -9,7 +9,7 @@ export class MeasuringStopwatch {
     private now = (): number => performance.now();
 
     constructor(
-        private readonly numberOfSmaples: number
+        public readonly numberOfSmaples: number
     ) {
         this.latestSamplesMs = Array<number>();
         this.clear();
@@ -74,5 +74,9 @@ export class MeasuringStopwatch {
 
     public getTotalMeasureTimeMs(): number {
         return this.totalMeasureTimeMs;
+    }
+
+    public getTotalMeasureCount(): number {
+        return this.totalMeasureCount;
     }
 }
