@@ -1,35 +1,6 @@
-import { Oscillator } from "./oscillatori";
+import { Oscillator } from "../oscillatori";
 
-class LoopOfRequestAnimationFrame {
-    constructor(
-        private targetProccess: () => void,
-        private readonly window: Window
-    ) { }
-
-    private inLooping = false;
-    private nowRequestId: number = 0;
-
-    public start(): void {
-        if (this.inLooping) return;
-        this.inLooping = true;
-        this.recursiveCaller();
-    }
-
-    public stop(): void {
-        if (!this.inLooping) return;
-        this.inLooping = false;
-        if (this.nowRequestId !== 0) window.cancelAnimationFrame(this.nowRequestId);
-        this.nowRequestId = 0;
-    }
-
-    private recursiveCaller() {
-        if (!this.inLooping) return;
-        this.targetProccess();
-        this.nowRequestId = window.requestAnimationFrame(() => this.recursiveCaller());
-    }
-}
-
-export class OscillatorUseRequestAnimationFrame implements Oscillator {
+export class OscillatorUseSetInterval implements Oscillator {
     constructor(private readonly window: Window) { }
 
     private count = 0;
@@ -38,9 +9,8 @@ export class OscillatorUseRequestAnimationFrame implements Oscillator {
     private lastWatchTotalCount = 0;
     private lastWatch = new Date();
 
+    private frameIId = 0;
     private watchIId = 0;
-
-    private loop?: LoopOfRequestAnimationFrame;
 
     public start(fps: number, cbOneFrame: () => void,
         cbForIndicate: (nowFps: number, count: number) => void) {
@@ -53,24 +23,21 @@ export class OscillatorUseRequestAnimationFrame implements Oscillator {
 
         const idealIntervalMs = 1000 / fps;
 
-        this.loop = new LoopOfRequestAnimationFrame(() => this.frameProcess(cbOneFrame), this.window);
-        this.loop.start();
-
+        this.frameIId = window.setInterval(() => this.frameProcess(cbOneFrame), idealIntervalMs);
         this.watchIId = window.setInterval(() => this.watchProcess(cbForIndicate), 1000);
     }
 
     public stop() {
         if (!this.isStarted()) return;
 
-        this.loop?.stop();
-        this.loop = undefined;
-
+        window.clearInterval(this.frameIId);
         window.clearInterval(this.watchIId);
+        this.frameIId = 0;
         this.watchIId = 0;
     }
 
     public isStarted(): boolean {
-        return this.watchIId !== 0;
+        return this.frameIId !== 0;
     }
 
     private frameProcess(cbOneFrame: () => void) {

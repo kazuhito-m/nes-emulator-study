@@ -1,6 +1,7 @@
-import { Oscillator } from "./oscillatori";
+import { Oscillator } from "../oscillatori";
+import { LoopOfRequestAnimationFrame } from "./loop-of-request-animation-frame";
 
-export class OscillatorUseSetInterval implements Oscillator {
+export class OscillatorUseRequestAnimationFrame implements Oscillator {
     constructor(private readonly window: Window) { }
 
     private count = 0;
@@ -9,8 +10,9 @@ export class OscillatorUseSetInterval implements Oscillator {
     private lastWatchTotalCount = 0;
     private lastWatch = new Date();
 
-    private frameIId = 0;
     private watchIId = 0;
+
+    private loop?: LoopOfRequestAnimationFrame;
 
     public start(fps: number, cbOneFrame: () => void,
         cbForIndicate: (nowFps: number, count: number) => void) {
@@ -23,21 +25,24 @@ export class OscillatorUseSetInterval implements Oscillator {
 
         const idealIntervalMs = 1000 / fps;
 
-        this.frameIId = window.setInterval(() => this.frameProcess(cbOneFrame), idealIntervalMs);
+        this.loop = new LoopOfRequestAnimationFrame(() => this.frameProcess(cbOneFrame), this.window);
+        this.loop.start();
+
         this.watchIId = window.setInterval(() => this.watchProcess(cbForIndicate), 1000);
     }
 
     public stop() {
         if (!this.isStarted()) return;
 
-        window.clearInterval(this.frameIId);
+        this.loop?.stop();
+        this.loop = undefined;
+
         window.clearInterval(this.watchIId);
-        this.frameIId = 0;
         this.watchIId = 0;
     }
 
     public isStarted(): boolean {
-        return this.frameIId !== 0;
+        return this.watchIId !== 0;
     }
 
     private frameProcess(cbOneFrame: () => void) {

@@ -4,8 +4,8 @@ import * as React from 'react';
 import { useState, createRef } from 'react';
 import { Box, Button, Grid, Paper, Table, TableBody, TableCell, TableHead, TableRow, TextField, InputLabel, Select, MenuItem, SelectChangeEvent, FormControl } from '@mui/material';
 import { Oscillator } from './osclilator/oscillatori';
-import { OscillatorUseRequestAnimationFrame } from './osclilator/oscillator-use-requestanimationframe';
-import { OscillatorUseSetInterval } from './osclilator/oscillator-use-setinterval';
+import { OscillatorUseRequestAnimationFrame } from './osclilator/requestanimationframe/oscillator-use-requestanimationframe';
+import { OscillatorUseSetInterval } from './osclilator/setinterval/oscillator-use-setinterval';
 import { EmulatorTestRunner } from './render/emulator-test-runner';
 import { SampleNesFile } from './render/sample-nes-file';
 
