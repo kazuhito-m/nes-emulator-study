@@ -41,12 +41,16 @@ export default function Page() {
   };
 
   const watchFps = (fps: number, count: number) => {
+    const MS_PRECISION = 3;
+    const emu1FAve = runner.emulatorStopwatch.averageMs();
+    const render1FAve = runner.renderStopwatch.averageMs();
+    const total1FAve = emu1FAve + render1FAve;
     const nowStatus: RunnerPerformanceStatus = {
-      fps: fps.toFixed(3),
+      fps: fps.toFixed(MS_PRECISION),
       count: count.toString(),
-      oneFProccessAverageTimeMs: 'N/A',
-      emurator1FProccessAverageTimeMs: runner.emulatorStopwatch.averageMs().toFixed(3),
-      render1FProccessAverageTimeMs: runner.renderStopwatch.averageMs().toFixed(3)
+      oneFProccessAverageTimeMs: total1FAve.toFixed(MS_PRECISION),
+      emurator1FProccessAverageTimeMs: emu1FAve.toFixed(MS_PRECISION),
+      render1FProccessAverageTimeMs: render1FAve.toFixed(MS_PRECISION)
     }
     performanceStatusSet(nowStatus);
   }
