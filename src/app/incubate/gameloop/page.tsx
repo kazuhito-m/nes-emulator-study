@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useState, createRef } from 'react';
-import { Box, Button, Grid, Paper, Table, TableBody, TableCell, TableHead, TableRow, TextField, InputLabel, Select, MenuItem, SelectChangeEvent, FormControl } from '@mui/material';
+import { Box, Button, Grid, Paper, Table, TableBody, TableCell, TableHead, TableRow, TextField, InputLabel, Select, MenuItem, SelectChangeEvent, FormControl, duration } from '@mui/material';
 import { Oscillator } from './osclilator/oscillatori';
 import { OscillatorUseRequestAnimationFrame } from './osclilator/requestanimationframe/oscillator-use-requestanimationframe';
 import { OscillatorUseSetInterval } from './osclilator/setinterval/oscillator-use-setinterval';
@@ -23,6 +23,8 @@ let runner: EmulatorTestRunner;
 interface RunnerPerformanceStatus {
   fps: string;
   count: string;
+  emurator1FProccessAverageTimeMs: string,
+  render1FProccessAverageTimeMs: string,
 }
 
 export default function Page() {
@@ -40,7 +42,9 @@ export default function Page() {
   const watchFps = (fps: number, count: number) => {
     const nowStatus: RunnerPerformanceStatus = {
       fps: fps.toFixed(3),
-      count: count.toString()
+      count: count.toString(),
+      emurator1FProccessAverageTimeMs: runner.emulatorStopwatch.averageMs().toFixed(5),
+      render1FProccessAverageTimeMs: runner.renderStopwatch.averageMs().toFixed(5)
     }
     performanceStatusSet(nowStatus);
   }
@@ -168,9 +172,18 @@ export default function Page() {
                   <TableCell>{performanceStatus.count}</TableCell>
                 </TableRow >
                 <TableRow >
+                  <TableCell>Emulator 1F Prossess(ms)</TableCell>
+                  <TableCell>{performanceStatus.emurator1FProccessAverageTimeMs}</TableCell>
+                </TableRow >
+                <TableRow >
+                  <TableCell>Render 1F Prossess(ms)</TableCell>
+                  <TableCell>{performanceStatus.render1FProccessAverageTimeMs}</TableCell>
+                </TableRow >
+                <TableRow >
                   <TableCell>Idial Interval(ms)</TableCell>
                   <TableCell>{inputFpsText}</TableCell>
-                </TableRow >              </TableBody>
+                </TableRow >
+              </TableBody>
             </Table>
 
           </Paper>
