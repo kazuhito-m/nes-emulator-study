@@ -7,6 +7,8 @@ import { MeasuringStopwatch } from "@/domain/model/measur/measuring-stopwatch";
 export class EmulatorTestRunner {
     private emulator: Emulator;
 
+    public static readonly STOPWATCH_SAMPLE_COUNT = 1000;
+
     constructor(
         private readonly canvas: HTMLCanvasElement,
         testRomBinary: number[],
@@ -18,8 +20,8 @@ export class EmulatorTestRunner {
             EmulatorTestRunner.DISPLAY_RATIO);
     }
 
-    public readonly emulatorStopwatch = new MeasuringStopwatch(1000);
-    public readonly renderStopwatch = new MeasuringStopwatch(1000);
+    public readonly emulatorStopwatch = new MeasuringStopwatch(EmulatorTestRunner.STOPWATCH_SAMPLE_COUNT);
+    public readonly renderStopwatch = new MeasuringStopwatch(EmulatorTestRunner.STOPWATCH_SAMPLE_COUNT);
 
     private static readonly DISPLAY_RATIO = 2;  // canvasのサイズはドット数の2倍pixelであること決め打ち。
 
