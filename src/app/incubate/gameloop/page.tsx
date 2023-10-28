@@ -7,7 +7,7 @@ import { Oscillator } from './osclilator/oscillatori';
 import { OscillatorUseRequestAnimationFrame } from './osclilator/requestanimationframe/oscillator-use-requestanimationframe';
 import { OscillatorUseSetInterval } from './osclilator/setinterval/oscillator-use-setinterval';
 import { EmulatorTestRunner } from './render/emulator-test-runner';
-import { SampleNesFile } from './render/sample-nes-file';
+import { SampleNesFile } from './sample-rom/sample-nes-file';
 
 const DEFAULT_FPS = '60';
 const BUTTON_TOGGLE_TEXT = ['start', 'stop'];
