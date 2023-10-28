@@ -29,18 +29,14 @@ export class EmulatorTestRunner {
         const matrix = this.generateEmptyColorMatrix();
 
         this.emulatorStopwatch.start();
-
         emu.stepFrame();
         emu.getPictureColor(matrix);
-
         this.emulatorStopwatch.stop();
 
         // matrix.forEach(i => console.log(i.map(j => `[${j.Red},${j.Green},${j.Blue}]`).join('')));
 
         this.renderStopwatch.start();
-
         this.rendering(matrix, EmulatorTestRunner.DISPLAY_RATIO);
-
         this.renderStopwatch.stop();
 
         // console.log(`${this.emulatorStopwatch.getTotalMeasureCount()} 回目のフレーム処理完了。`);
