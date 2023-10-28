@@ -7,7 +7,7 @@ import { MeasuringStopwatch } from "@/domain/model/measur/measuring-stopwatch";
 export class EmulatorTestRunner {
     private emulator: Emulator;
 
-    public static readonly STOPWATCH_SAMPLE_COUNT = 1000;
+    public static readonly STOPWATCH_SAMPLE_COUNT = 100;
 
     constructor(
         private readonly canvas: HTMLCanvasElement,
