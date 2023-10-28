@@ -18,7 +18,11 @@ if (typeof window !== 'undefined') {
   oscillators["setInterval"] = new OscillatorUseSetInterval(window);
 }
 
+let runner: EmulatorTestRunner;
+
 export default function Page() {
+  let emu
+
   const canvasRef = createRef<HTMLCanvasElement>();
   const [fpsText, fpsTextSet] = useState('');
   const [countText, countTextSet] = useState('');
@@ -54,7 +58,7 @@ export default function Page() {
       try {
         const sampleNesFile = new SampleNesFile();
         const bytes = await sampleNesFile.readBytes();
-        const runner = new EmulatorTestRunner(canvas, bytes);
+        runner = new EmulatorTestRunner(canvas, bytes);
         oscillator.start(inputFps, () => runner.stepFrame(), watchFps);
       } catch (e) {
         console.log(e);

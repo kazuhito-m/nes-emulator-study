@@ -18,8 +18,8 @@ export class EmulatorTestRunner {
             EmulatorTestRunner.DISPLAY_RATIO);
     }
 
-    private readonly emulatorStopwatch = new MeasuringStopwatch(1000);
-    private readonly renderStopwatch = new MeasuringStopwatch(1000);
+    public readonly emulatorStopwatch = new MeasuringStopwatch(1000);
+    public readonly renderStopwatch = new MeasuringStopwatch(1000);
 
     private static readonly DISPLAY_RATIO = 2;  // canvasのサイズはドット数の2倍pixelであること決め打ち。
 
