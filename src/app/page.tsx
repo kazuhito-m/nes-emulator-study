@@ -18,69 +18,60 @@ import { Cartridge } from '@/domain/model/nes/cartridge/cartridge';
 export default function Home() {
   // TODO キーボード周りの入力系は、今かなりやっつけなので、整理・分離したい。
   const padOne = new KeyboardOne();
-  let [padUp, padUpSet] = useState(false);
-  let [padDown, padDownSet] = useState(false);
-  let [padLeft, padLeftSet] = useState(false);
-  let [padRight, padRightSet] = useState(false);
-  let [padA, padASet] = useState(false);
-  let [padB, padBSet] = useState(false);
-  let [padSelect, padSelectSet] = useState(false);
-  let [padStart, padStartSet] = useState(false);
+  const [padUp, padUpSet] = useState(false);
+  const [padDown, padDownSet] = useState(false);
+  const [padLeft, padLeftSet] = useState(false);
+  const [padRight, padRightSet] = useState(false);
+  const [padA, padASet] = useState(false);
+  const [padB, padBSet] = useState(false);
+  const [padSelect, padSelectSet] = useState(false);
+  const [padStart, padStartSet] = useState(false);
   if (typeof window !== 'undefined') {
     const changeKeyState = (key: string, state: boolean): void => {
       switch (key.toLowerCase()) {
         case 'arrowup':
           if (padUp === state) return;
-          padUp = state;
-          padUpSet(padUp);
-          padOne.up = padUp;
+          padUpSet(state);
+          padOne.up = state;
           break;
         case 'arrowdown':
           if (padDown === state) return;
-          padDown = state;
-          padDownSet(padDown);
-          padOne.down = padDown;
+          padDownSet(state);
+          padOne.down = state;
           break;
         case 'arrowleft':
           if (padLeft === state) return;
-          padLeft = state;
-          padLeftSet(padLeft);
-          padOne.left = padLeft;
+          padLeftSet(state);
+          padOne.left = state;
           break;
         case 'arrowright':
           if (padRight === state) return;
-          padRight = state;
-          padRightSet(padRight);
-          padOne.right = padRight;
+          padRightSet(state);
+          padOne.right = state;
           break;
         case 'a':
           if (padA === state) return;
-          padA = state;
-          padASet(padA);
-          padOne.a = padA;
+          padASet(state);
+          padOne.a = state;
           break;
         case 'b':
           if (padB === state) return;
-          padB = state;
-          padBSet(padB);
-          padOne.b = padB;
+          padBSet(state);
+          padOne.b = state;
           break;
         case 'l':
           if (padSelect === state) return;
-          padSelect = state;
-          padSelectSet(padSelect);
-          padOne.select = padSelect;
+          padSelectSet(state);
+          padOne.select = state;
           break;
         case 'r':
           if (padStart === state) return;
-          padStart = state;
-          padStartSet(padStart);
-          padOne.start = padStart;
+          padStartSet(state);
+          padOne.start = state;
           break;
         default:
           return;
       }
-      console.log(JSON.stringify(padOne));
     };
     const clearStates = (): void => {
       ['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'a', 'b', 'l', 'r',]
@@ -122,7 +113,6 @@ export default function Home() {
       <Box
         component="main"
         sx={{
-          backgroundColor: (theme) => theme.palette.grey[300],
           flexGrow: 1,
           height: '100vh',
           overflow: 'auto',
